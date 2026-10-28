@@ -10,6 +10,14 @@
 
 界面为中文，深浅色跟随系统。主界面使用 SwiftUI，几何和切片引擎使用 Swift；模型预览使用 SceneKit，校准页面使用 WebKit / WebGL。应用运行不依赖 Python 或 FreeCAD。
 
+## 下载
+
+[下载最新版本](https://github.com/Morayla/149-slicer/releases/latest)
+
+Release 提供 `149-Slicer-版本号-macOS-arm64.zip`。下载并解压后，将 `149.app` 放入「应用程序」即可使用。当前支持 Apple Silicon Mac 和 macOS 13 或更高版本。
+
+仓库为私有时，需要登录获授权的 GitHub 账号才能下载。Release 同时附带 SHA-256 校验文件。
+
 ## 目录结构
 
 ```text
