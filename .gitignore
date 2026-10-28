@@ -1,0 +1,34 @@
+# Local application builds and generated pages
+/dist/
+/build/
+/resources/calibration.html
+/web/calibration/dist/
+
+# JavaScript dependencies and caches
+node_modules/
+.pnpm-store/
+.npm/
+
+# macOS and editors
+.DS_Store
+._*
+*.xcuserstate
+xcuserdata/
+.idea/
+.vscode/
+
+# Logs, local configuration and credentials
+*.log
+.env
+.env.*
+!.env.example
+*-connection.json
+*.pem
+*.key
+
+# Temporary user print outputs
+*.gcode
+*.gcode.3mf
+
+# macOS application bundles
+*.app/

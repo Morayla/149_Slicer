@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>zh-Hans</string>
+	<key>CFBundleDisplayName</key>
+	<string>149</string>
+	<key>CFBundleExecutable</key>
+	<string>149</string>
+	<key>CFBundleIconFile</key>
+	<string>149</string>
+	<key>CFBundleIdentifier</key>
+	<string>local.g1mini.workbench</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>zh-Hans</string>
+		<string>en</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>149</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.40.2</string>
+	<key>CFBundleVersion</key>
+	<string>132</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>连接本地树莓派以查看相机和控制测量台，以及打开打印机网页。</string>
+</dict>
+</plist>

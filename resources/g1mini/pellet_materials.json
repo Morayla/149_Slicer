@@ -1,0 +1,17 @@
+[
+  {
+    "id": "polymaker_petg1000",
+    "name": "Polymaker · PolyCore PETG-1000",
+    "fields": {"Density": 1.3, "NT": 200, "BT": 60, "ZONE1": 200, "ZONE2": 200, "ZONE3": 200, "F": 7, "BottomF": 7, "WallF": 7, "SKIRT_F": 7},
+    "trialFlow": null,
+    "maxTrialSpeed": null
+  },
+  {
+    "id": "cafblo_rsd038_4r0001",
+    "name": "CAFBLO · RSD038-4R0001",
+    "fields": {"Density": 1.28, "NT": 230, "BT": 90, "ZONE1": 210, "ZONE2": 220, "ZONE3": 230},
+    "trialFlow": 50,
+    "maxTrialSpeed": 10
+  },
+  {"id": "custom", "name": "自定义颗粒材料", "fields": {}, "trialFlow": null, "maxTrialSpeed": null}
+]

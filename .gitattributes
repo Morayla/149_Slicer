@@ -1,0 +1,14 @@
+* text=auto
+*.swift text eol=lf
+*.cpp text eol=lf
+*.sh text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.dylib binary
+*.icns binary
+*.pdf binary
+vendor/cad/bin/* binary
