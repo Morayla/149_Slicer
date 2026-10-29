@@ -12,16 +12,16 @@
 
 ## 下载
 
-[下载最新版本](https://github.com/Morayla/149-slicer/releases/latest)
+[下载最新版本](https://github.com/Morayla/149_Slicer/releases/latest)
 
-Release 提供 `149-Slicer-版本号-macOS-arm64.zip`。下载并解压后，将 `149.app` 放入「应用程序」即可使用。当前支持 Apple Silicon Mac 和 macOS 13 或更高版本。
+Release 提供 `149_Slicer-版本号-macOS-arm64.zip`。下载并解压后，将 `149.app` 放入「应用程序」即可使用。当前支持 Apple Silicon Mac 和 macOS 13 或更高版本。
 
 仓库为私有时，需要登录获授权的 GitHub 账号才能下载。Release 同时附带 SHA-256 校验文件。
 
 ## 目录结构
 
 ```text
-149-slicer/
+149_Slicer/
 ├── src/
 │   ├── app/                 # SwiftUI 界面与 SceneKit 预览
 │   │   └── Engine/          # Swift 几何、切片和导出引擎
