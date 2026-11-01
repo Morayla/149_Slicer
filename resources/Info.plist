@@ -20,9 +20,9 @@
 	<key>CFBundleName</key>
 	<string>149</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.40.2</string>
+	<string>0.41.0</string>
 	<key>CFBundleVersion</key>
-	<string>132</string>
+	<string>133</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>NSAppTransportSecurity</key>
@@ -35,6 +35,6 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>连接本地树莓派以查看相机和控制测量台，以及打开打印机网页。</string>
+	<string>连接本地打印机、打印监控与烘干设备。</string>
 </dict>
 </plist>

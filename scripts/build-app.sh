@@ -8,28 +8,26 @@ case "$output" in /*) ;; *) output="$PWD/$output" ;; esac
 if [[ -z "${DEVELOPER_DIR:-}" && -d /Applications/Xcode.app/Contents/Developer ]]; then
   export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 fi
-# Rebuild the generated WebKit page when absent or when its sources change.
-page="$root/resources/calibration.html"
-if [[ ! -f "$page" ]] || [[ -n "$(find "$root/web/calibration/src" "$root/web/calibration/assets" "$root/web/calibration/build.mjs" "$root/web/calibration/package.json" "$root/web/calibration/pnpm-lock.yaml" "$root/web/calibration/pnpm-workspace.yaml" -type f -newer "$page" -print -quit 2>/dev/null)" ]]; then
-  "$root/scripts/build-calibration.sh"
-fi
 [[ -x "$root/vendor/cad/bin/149-step" ]] || { echo 'Native STEP helper is missing. Run scripts/build-cad.sh.' >&2; exit 2; }
 build=$(mktemp -d "${TMPDIR:-/tmp}/149-build.XXXXXX")
 trap 'rm -rf "$build"' EXIT
 app="$build/149.app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Frameworks" "$app/Contents/Helpers" "$app/Contents/Resources/CAD-Licenses"
 cp "$root/resources/Info.plist" "$app/Contents/Info.plist"
-ditto "$root/resources" "$app/Contents/Resources"
+for resource in 149.icns Logo149VectorWhite.pdf G1PreviewConfig.txt definitions; do
+  ditto "$root/resources/$resource" "$app/Contents/Resources/$resource"
+done
+if [[ -d "$root/resources/en.lproj" ]]; then ditto "$root/resources/en.lproj" "$app/Contents/Resources/en.lproj"; fi
 cp "$root/vendor/cad/bin/149-step" "$app/Contents/Helpers/149-step"
 cp "$root/vendor/cad/lib/"*.dylib "$app/Contents/Frameworks/"
 ditto "$root/vendor/cad/licenses" "$app/Contents/Resources/CAD-Licenses"
 cp "$root/vendor/cad/provenance.json" "$app/Contents/Resources/CAD-Licenses/provenance.json"
 mkdir -p "$build/native"
 while IFS= read -r -d '' source; do
-  relative="${source#"$root/src/app/"}"
+  relative="${source#"$root/src/"}"
   mkdir -p "$build/native/$(dirname "$relative")"
   cp "$source" "$build/native/$relative"
-done < <(find "$root/src/app" -type f -name '*.swift' -print0)
+done < <(find "$root/src/slicer" "$root/src/shared" -type f -name '*.swift' -print0)
 sources=()
 while IFS= read -r -d '' source; do sources+=("$source"); done < <(find "$build/native" -type f -name '*.swift' -print0)
 /usr/bin/swiftc -target arm64-apple-macos13.0 -module-cache-path "$build/module-cache" \
