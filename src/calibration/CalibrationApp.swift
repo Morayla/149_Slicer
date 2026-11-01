@@ -7,16 +7,17 @@ import SwiftUI
         @NSApplicationDelegateAdaptor(CalibrationAppDelegate.self) private var delegate
 
         var body: some Scene {
-            Settings { CalibrationSettings(store: store) }
             Window("149 Calibration", id: "calibration") {
-                CalibrationWorkspace(store: store)
-                    .onAppear { delegate.store = store }
-                    .background(WindowGlass())
-                    .frame(minWidth: 1000, minHeight: 680)
-                    .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) {
-                        _ in
-                        store.setActive(false)
-                    }
+                MainWindowContent(id: "calibration", delegate: delegate) {
+                    CalibrationWorkspace(store: store)
+                }
+                .onAppear { delegate.store = store }
+                .background(WindowGlass())
+                .frame(minWidth: 1000, minHeight: 680)
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) {
+                    _ in
+                    store.setActive(false)
+                }
             }
             .defaultSize(width: 1280, height: 800)
             .commands {
@@ -28,11 +29,12 @@ import SwiftUI
                     Button(L("导出 CSV…"), action: store.exportCSV).keyboardShortcut("e", modifiers: [.command, .shift])
                 }
             }
+            MenuSettings { CalibrationSettings(store: store) }
         }
     }
 #endif
 
-final class CalibrationAppDelegate: NSObject, NSApplicationDelegate {
+final class CalibrationAppDelegate: MainWindowAppDelegate {
     weak var store: CalibrationStore?
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         guard let store, store.ownsMotion else { return .terminateNow }

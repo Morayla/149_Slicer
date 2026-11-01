@@ -20,9 +20,9 @@
 	<key>CFBundleName</key>
 	<string>149 Calibration</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.41.0</string>
+	<string>0.41.1</string>
 	<key>CFBundleVersion</key>
-	<string>133</string>
+	<string>134</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>NSAppTransportSecurity</key>
