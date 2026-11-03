@@ -46,7 +46,7 @@ final class NativeSliceEngine {
         defaults = try NativeBambu.readObject(shapes.appendingPathComponent("defaults.json"))
         let catalog =
             try JSONSerialization.jsonObject(
-                with: Data(contentsOf: shapes.appendingPathComponent("pellet_materials.json"))) as! [[String: Any]]
+                with: Data(contentsOf: shapes.appendingPathComponent("pellet-materials.json"))) as! [[String: Any]]
         materials = Dictionary(uniqueKeysWithValues: catalog.map { ($0["id"] as! String, $0) })
     }
     private func configured(_ raw: [String: Any], forPreview: Bool = false) throws -> (

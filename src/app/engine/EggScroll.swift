@@ -8,7 +8,7 @@ extension SliceGeometry {
         let nominal = p["H"]
         let depth = p["CH"]
         guard height >= 50, height <= 950 else { throw SliceFailure("整体高度需为 50–950 mm。") }
-        let profile = try readProfile(resources, "egg_scroll_profile")
+        let profile = try readProfile(resources, "egg-scroll-profile")
         let raw = profile["path"] as! [[Double]]
         let low = raw.map { $0[1] }.min()!
         let high = raw.map { $0[1] }.max()!

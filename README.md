@@ -59,16 +59,30 @@ The build script does not overwrite an existing application. For another build, 
 ## Source layout
 
 ```text
-src/slicer/           Application, parameter controls, and preview
-src/slicer/Engine/    Geometry, slicing, and print-file generation
-src/shared/          UI components, localization, and compensation format
-resources/           Defaults, shape definitions, materials, and icons
-scripts/             Application build script
-tools/               Icon generation utility
+src/app/             Application workspace and app-specific logic
+src/app/engine/      Geometry, slicing, and print-file generation
+src/shared/          Shared UI components and interchange formats
+assets/branding/     Source logo and application icon
+resources/           App metadata, translations, and runtime data
+scripts/             Shell entry points for builds
+tools/               Swift build utilities
 docs/screenshots/    Interface examples used in this guide
-dist/                Local build output (not tracked)
+build/               Generated intermediate files (not tracked)
+dist/                Local application builds (not tracked)
 ```
 
 The interface uses SwiftUI and AppKit. Geometry and slicing are implemented in Swift; the SceneKit viewport uses Metal. Device control panels display device-provided interfaces through WebKit.
 
 [149 Calibration](https://github.com/Morayla/149_Calibration) is developed and distributed separately. It exports compensation presets that can be imported into Slicer's compensation controls. Each repository includes the UI and interchange components it needs and builds independently.
+
+## Repository conventions
+
+Both 149 repositories use the same layout and naming rules:
+
+- Directories, shell scripts, and data assets use lowercase names with hyphens between words.
+- Swift files use `UpperCamelCase` names matching their primary type or responsibility.
+- Apple-defined names such as `Info.plist` and `en.lproj/Localizable.strings` retain their standard spelling.
+- `src/app/` contains application-specific code; `src/shared/` contains the shared components each repository needs to build independently.
+- `assets/` holds source artwork and model assets; `resources/` holds app metadata, translations, and runtime data.
+- Generated intermediates belong in `build/`; distributable applications belong in `dist/`. Neither directory is committed.
+- App-specific subdirectories are added only when needed; no empty placeholder directories are required.

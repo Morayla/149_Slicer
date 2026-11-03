@@ -258,7 +258,7 @@ final class Workbench: ObservableObject {
             defaults = try JSONSerialization.jsonObject(with: data) as! [String: Any]
             materialCatalog = try JSONDecoder().decode(
                 [PelletMaterial].self,
-                from: Data(contentsOf: resource.appendingPathComponent("definitions/pellet_materials.json")))
+                from: Data(contentsOf: resource.appendingPathComponent("definitions/pellet-materials.json")))
             engine = try NativeSliceEngine(resources: resource)
             try applyProject(defaults)
             if let name = preferences.string(forKey: "149.lastPrinter"),

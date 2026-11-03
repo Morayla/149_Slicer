@@ -4,7 +4,7 @@ import Foundation
 // Rebuild the Dock icon from the vector mark, with a standard inset tile.
 let args = CommandLine.arguments
 guard args.count == 3, let mark = NSImage(contentsOfFile: args[1]) else {
-    fatalError("Usage: swift BuildIcon.swift Logo149VectorWhite.pdf output.icns")
+    fatalError("Usage: swift BuildIcon.swift logo.pdf output.icns")
 }
 let work = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".iconset")
 try FileManager.default.createDirectory(at: work, withIntermediateDirectories: true)

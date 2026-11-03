@@ -13,16 +13,17 @@ trap 'rm -rf "$build"' EXIT
 app="$build/149 Slicer.app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp "$root/resources/Info.plist" "$app/Contents/Info.plist"
-for resource in 149.icns Logo149VectorWhite.pdf G1PreviewConfig.txt definitions; do
+for resource in g1-preview-config.txt definitions; do
   ditto "$root/resources/$resource" "$app/Contents/Resources/$resource"
 done
 if [[ -d "$root/resources/en.lproj" ]]; then ditto "$root/resources/en.lproj" "$app/Contents/Resources/en.lproj"; fi
+ditto "$root/assets/branding" "$app/Contents/Resources"
 mkdir -p "$build/native"
 while IFS= read -r -d '' source; do
   relative="${source#"$root/src/"}"
   mkdir -p "$build/native/$(dirname "$relative")"
   cp "$source" "$build/native/$relative"
-done < <(find "$root/src/slicer" "$root/src/shared" -type f -name '*.swift' -print0)
+done < <(find "$root/src/app" "$root/src/shared" -type f -name '*.swift' -print0)
 sources=()
 while IFS= read -r -d '' source; do sources+=("$source"); done < <(find "$build/native" -type f -name '*.swift' -print0)
 /usr/bin/swiftc -target arm64-apple-macos13.0 -module-cache-path "$build/module-cache" \

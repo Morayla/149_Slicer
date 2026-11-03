@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>149</string>
 	<key>CFBundleIconFile</key>
-	<string>149</string>
+	<string>app-icon</string>
 	<key>CFBundleIdentifier</key>
 	<string>local.g1mini.workbench</string>
 	<key>CFBundleLocalizations</key>

@@ -145,7 +145,7 @@ extension SliceGeometry {
             let sep: Double
         }
         let raw = try JSONDecoder().decode(
-            Profile.self, from: Data(contentsOf: resources.appendingPathComponent("trimmed_pipe_scroll_profile.json")))
+            Profile.self, from: Data(contentsOf: resources.appendingPathComponent("trimmed-pipe-scroll-profile.json")))
         var path = rotatePoints(raw.path.map { SlicePoint($0[0], $0[1], 0) }, rotation)
         path.append(path[0])
         return (

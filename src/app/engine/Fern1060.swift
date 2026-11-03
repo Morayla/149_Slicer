@@ -9,7 +9,7 @@ final class FernSliceSections {
             let sections: [[[Double]]]
             let subdivisions: [Int]
         }
-        let name = variant == "E" ? "fern1060_e_profile" : "fern1060_profile"
+        let name = variant == "E" ? "fern1060-e-profile" : "fern1060-profile"
         let data = try JSONDecoder().decode(
             Profile.self, from: Data(contentsOf: resources.appendingPathComponent(name + ".json")))
         self.depth = depth

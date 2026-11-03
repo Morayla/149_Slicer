@@ -13,7 +13,7 @@ struct WorkspaceHeader<Actions: View>: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(
-                nsImage: NSImage(contentsOf: Bundle.main.url(forResource: "Logo149VectorWhite", withExtension: "pdf")!)!
+                nsImage: NSImage(contentsOf: Bundle.main.url(forResource: "logo", withExtension: "pdf")!)!
             )
             .renderingMode(.template).resizable().scaledToFit().foregroundStyle(.primary)
             .frame(width: 68, height: 44).padding(.horizontal, 12)

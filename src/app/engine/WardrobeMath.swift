@@ -14,7 +14,7 @@ final class WardrobeReference {
     }
     var connectorCache = [ConnectorKey: ([SlicePoint], [Double])](), outerCache = [OuterKey: Double]()
     init(resources: URL) throws {
-        let raw = try SliceGeometry.readProfile(resources, "wardrobe_profile")
+        let raw = try SliceGeometry.readProfile(resources, "wardrobe-profile")
         points = (raw["points"] as! [[Double]]).map { SlicePoint($0[0], $0[1], 0) }
         centers = (raw["centers"] as! [[Double]]).map { SlicePoint($0[0], $0[1], 0) }
     }

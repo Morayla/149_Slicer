@@ -124,7 +124,7 @@ extension G1Exporter {
             }
             output.append(line)
         }
-        let template = try String(contentsOf: resources.appendingPathComponent("G1PreviewConfig.txt"), encoding: .utf8)
+        let template = try String(contentsOf: resources.appendingPathComponent("g1-preview-config.txt"), encoding: .utf8)
         var cfg = [String: String]()
         var keys = [String]()
         for line in G.lines(template) where line.hasPrefix("; ") {
