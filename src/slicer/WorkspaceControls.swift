@@ -42,7 +42,7 @@ struct StaticNumberRow: View {
     var body: some View {
         HStack(spacing: 8) {
             uiText(label).frame(maxWidth: .infinity, alignment: .leading)
-            uiText(value).monospacedDigit().frame(width: 84, alignment: .trailing)
+            uiText(value).monospacedDigit().frame(width: ParameterLayout.valueWidth, alignment: .trailing)
             uiText(unit).font(.caption).foregroundStyle(.secondary).frame(width: 38, alignment: .leading)
         }.frame(minHeight: 30)
     }
@@ -135,41 +135,52 @@ struct WorkspaceCommands: Commands {
     @FocusedObject private var model: Workbench?
 
     var body: some Commands {
-        CommandGroup(after: .toolbar) {
+        CommandGroup(after: .sidebar) {
             if let model = model {
                 Divider()
+                Button(L(model.parametersVisible ? "收起参数" : "展开参数")) { model.parametersVisible.toggle() }
+                    .keyboardShortcut("1", modifiers: [.command, .option])
                 Menu(L("参数")) {
                     Picker("", selection: Binding(get: { model.parameterTab }, set: { model.parameterTab = $0 })) {
-                        uiText("造型").tag(0)
-                        uiText("底部").tag(4)
-                        uiText("补偿").tag(2)
                         uiText("打印").tag(3)
+                        uiText("形态").tag(0)
                     }.pickerStyle(.inline).labelsHidden()
                 }
                 Menu(L("预览")) {
-                    Toggle(
-                        L("模型"),
-                        isOn: Binding(get: { model.showingModel }, set: { if $0 { model.showingModel = true } }))
-                    Toggle(
-                        L("切片结果"),
-                        isOn: Binding(
-                            get: { !model.showingModel },
-                            set: { if $0, model.preview != nil { model.showingModel = false } })
-                    ).disabled(model.preview == nil)
+                    Picker("", selection: Binding(get: { model.showingModel }, set: { model.showingModel = $0 })) {
+                        uiText("形态").tag(true)
+                        uiText("切片").tag(false)
+                    }.pickerStyle(.inline)
                 }
                 Menu(L("视角")) {
-                    Button(L("立体视角")) { model.cameraAction(5) }
+                    Button(L("等距")) { model.cameraAction(5) }
                     Button(L("俯视")) { model.cameraAction(1) }
                     Button(L("正视")) { model.cameraAction(3) }
                     Button(L("左视")) { model.cameraAction(4) }
                     Divider()
-                    Toggle(L("平移模式"), isOn: Binding(get: { model.panMode }, set: { model.panMode = $0 }))
-                    Button(L("复位")) { model.cameraAction(0) }
+
                     Button(L("适合窗口")) { model.cameraAction(2) }
                     if !model.showingModel { Button(L("查看整个平台")) { model.cameraAction(6) } }
                 }
-                if !model.showingModel {
-                    PreviewDisplayMenuItems(model: model)
+                Menu(L("显示")) {
+                    if model.showingModel {
+                        Picker("", selection: Binding(get: { model.modelShading }, set: { model.modelShading = $0 })) {
+                            uiText("白模").tag("solid")
+                            uiText("材质").tag("rendered")
+                        }.pickerStyle(.inline)
+                    } else {
+                        Picker("", selection: Binding(get: { model.previewMode }, set: { model.previewMode = $0 })) {
+                            ForEach(PreviewMode.allCases.filter { $0 != .xray }) { mode in
+                                uiText(mode.rawValue).tag(mode)
+                            }
+                        }.pickerStyle(.inline)
+                        Divider()
+                        Toggle(L("显示线宽"), isOn: Binding(get: { model.showBeads }, set: { model.showBeads = $0 }))
+                        Toggle(L("空移路径"), isOn: Binding(get: { model.showTravel }, set: { model.showTravel = $0 }))
+                        Toggle(L("喷嘴"), isOn: Binding(get: { model.showNozzle }, set: { model.showNozzle = $0 }))
+                    }
+                    Divider()
+                    Toggle(L("打印平台"), isOn: Binding(get: { model.showBed }, set: { model.showBed = $0 }))
                 }
             }
         }

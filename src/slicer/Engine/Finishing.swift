@@ -89,7 +89,12 @@ extension G1Exporter {
             ("DOUBLE_VASE", ["; DOUBLE_VASE_RIM_START", "; DOUBLE_VASE_RIM_END"], "双螺旋花瓶缺少唯一的顶部整平路径。"),
         ]
         for (key, required, message) in markers where G.meta(text, key) == "1" {
-            guard required.allSatisfy({ text.components(separatedBy: $0).count == 2 }) else {
+            guard
+                required.allSatisfy({ marker in
+                    guard let first = text.range(of: marker, options: .literal) else { return false }
+                    return text.range(of: marker, options: .literal, range: first.upperBound..<text.endIndex) == nil
+                })
+            else {
                 throw SliceFailure(message)
             }
             return (text, "GEOMETRIC_RIM")
@@ -173,16 +178,14 @@ extension G1Exporter {
         var lines = G.lines(text)
         if abs(dx) + abs(dy) > 1e-10 {
             for r in records {
-                let code = String(lines[r.line].prefix(while: { $0 != ";" }))
-                let ns = String(lines[r.line].prefix(while: { $0 != ";" })) as NSString
-                var handled = Set<String>()
-                for match in G.words.matches(in: code, range: NSRange(location: 0, length: ns.length)) {
-                    let axis = ns.substring(with: match.range(at: 1))
-                    if !["X", "Y"].contains(axis) || handled.contains(axis) { continue }
-                    handled.insert(axis)
-                    let value = Double(ns.substring(with: match.range(at: 2)))!
-                    lines[r.line] = G.word(lines[r.line], axis, value + (axis == "X" ? dx : dy))
+                var x: Double?
+                var y: Double?
+                G.readWords(lines[r.line]) { axis, value in
+                    if axis == 88 && x == nil { x = value }
+                    if axis == 89 && y == nil { y = value }
                 }
+                if let x { lines[r.line] = G.word(lines[r.line], "X", x + dx) }
+                if let y { lines[r.line] = G.word(lines[r.line], "Y", y + dy) }
             }
         }
         p["CX"] = cx

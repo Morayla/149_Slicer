@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>zh-Hans</string>
 	<key>CFBundleDisplayName</key>
-	<string>149</string>
+	<string>149 Slicer</string>
 	<key>CFBundleExecutable</key>
 	<string>149</string>
 	<key>CFBundleIconFile</key>
@@ -18,11 +18,11 @@
 		<string>en</string>
 	</array>
 	<key>CFBundleName</key>
-	<string>149</string>
+	<string>149 Slicer</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.41.1</string>
+	<string>0.45.0</string>
 	<key>CFBundleVersion</key>
-	<string>134</string>
+	<string>144</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>NSAppTransportSecurity</key>
@@ -36,5 +36,42 @@
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>连接本地打印机、打印监控与烘干设备。</string>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.149.slicer.project</string>
+			<key>UTTypeDescription</key>
+			<string>149 Slicer Project</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>149slicer</string>
+				</array>
+				<key>public.mime-type</key>
+				<string>application/vnd.149-slicer.project+json</string>
+			</dict>
+		</dict>
+	</array>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>149 Slicer Project</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.149.slicer.project</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

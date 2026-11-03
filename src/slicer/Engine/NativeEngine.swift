@@ -5,6 +5,7 @@ struct NativeSliceResult {
     let gcode: String, project: NativeSliceProject, preview: NativePreview, metadata: [String: Any],
         bambu: NativeBambu.Plan?
     let model: SliceShape
+    let modelKey: Data
     var dictionary: [String: Any] {
         var result = metadata
         result["gcode"] = gcode
@@ -36,13 +37,12 @@ struct NativePreparedModel {
 
 final class NativeSliceEngine {
     typealias G = SliceGeometry
-    let resources: URL, shapes: URL, stepHelper: URL?
+    let resources: URL, shapes: URL
     private let defaults: [String: Any], materials: [String: [String: Any]], lock = NSLock()
     private var reference: WardrobeReference?, lengthsCache = [Data: [Double]](), lengthsOrder = [Data]()
-    init(resources: URL, stepHelper: URL? = nil) throws {
+    init(resources: URL) throws {
         self.resources = resources
         shapes = resources.appendingPathComponent("definitions")
-        self.stepHelper = stepHelper
         defaults = try NativeBambu.readObject(shapes.appendingPathComponent("defaults.json"))
         let catalog =
             try JSONSerialization.jsonObject(
@@ -106,8 +106,8 @@ final class NativeSliceEngine {
         return (project, shape)
     }
     private func geometryKey(_ project: NativeSliceProject, _ shape: SliceParameters) throws -> Data {
-        try JSONSerialization.data(
-            withJSONObject: ["shape": shape.values, "process": project.process.values], options: [.sortedKeys])
+        let values: [String: Any] = ["shape": shape.values, "process": project.process.values]
+        return try JSONSerialization.data(withJSONObject: values, options: [.sortedKeys])
     }
     private func buildShape(_ shape: SliceParameters, _ process: SliceParameters) throws -> SliceShape {
         try SliceComputation.check()
@@ -117,14 +117,21 @@ final class NativeSliceEngine {
         return try G.applyNoise(
             G.applyMesh(
                 G.applyWaves(
-                    G.makeShape(shape, resources: shapes, stepHelper: stepHelper, wardrobeReference: reference), process
+                    G.makeShape(shape, resources: shapes, wardrobeReference: reference), process
                 ), process), process)
     }
-    func prepareModel(_ raw: [String: Any]) throws -> NativePreparedModel {
+    func prepareModel(_ raw: [String: Any], samplingLimit: Int? = nil) throws -> NativePreparedModel {
         lock.lock()
         defer { lock.unlock() }
-        let (project, shape) = try configured(raw, forPreview: true)
-        return NativePreparedModel(key: try geometryKey(project, shape), shape: try buildShape(shape, project.process))
+        var (project, shape) = try configured(raw, forPreview: true)
+        if let samplingLimit, ["Cylinder", "Cone", "Ellipse"].contains(shape.text("SourceMode")),
+            !project.process.flag("WaveEnabled"), !project.process.flag("MeshEnabled")
+        {
+            shape.values["N"] = shape["N"] > 0 ? min(shape["N"], Double(samplingLimit)) : Double(samplingLimit)
+        }
+        let key = try geometryKey(project, shape)
+        let prepared = NativePreparedModel(key: key, shape: try buildShape(shape, project.process))
+        return prepared
     }
     func generate(_ raw: [String: Any], prepared: NativePreparedModel? = nil) throws -> NativeSliceResult {
         lock.lock()
@@ -134,9 +141,8 @@ final class NativeSliceEngine {
         let mode = shape.text("SourceMode")
         let selected = project.machine.text("PrinterModel")
         let key = try geometryKey(project, shape)
-        // External meshes are read again even if the file path has not changed.
         var model =
-            try prepared?.key == key && mode != "Imported" ? prepared!.shape : buildShape(shape, project.process)
+            try prepared?.key == key ? prepared!.shape : buildShape(shape, project.process)
         let mesh = model.details["mesh"] as? [String: Any]
         let wave = model.details["wave_fit"] as? [String: Any]
         if let fitted = mesh?["effective"] { project.process.values["MeshCount"] = fitted }
@@ -225,7 +231,8 @@ final class NativeSliceEngine {
             ]
         }
         return NativeSliceResult(
-            gcode: final, project: project, preview: preview, metadata: metadata, bambu: bambu, model: model)
+            gcode: final, project: project, preview: preview, metadata: metadata, bambu: bambu, model: model,
+            modelKey: key)
     }
     private func annotate(_ input: String, project: NativeSliceProject) throws -> (String, String) {
         let key = project.material.text("PelletMaterial")

@@ -85,7 +85,7 @@ extension SliceGeometry {
         return result
     }
 
-    static func circularModel(_ values: SliceParameters, source supplied: SliceSections? = nil, stepHelper: URL? = nil)
+    static func circularModel(_ values: SliceParameters, source supplied: SliceSections? = nil)
         throws -> SliceShape
     {
         var p = try validate(values)
@@ -95,11 +95,6 @@ extension SliceGeometry {
             source = supplied
         } else if p.text("SourceMode") == "Ellipse" {
             source = try EllipseSliceSections(p)
-        } else if p.text("SourceMode") == "Imported" {
-            source = try ImportedSliceSections(
-                SliceMeshImport.triangles(
-                    file: p.text("ImportFile"), scale: p["ImportScale"], tolerance: p["Tolerance"],
-                    stepHelper: stepHelper), pitch: p["H"])
         } else {
             source = nil
         }
@@ -414,7 +409,6 @@ extension SliceGeometry {
             format: "造型已更新 | %@ | 底 %d 层 | 墙 %.2f 圈 | 高 %.2f mm\nEF %g mm / %d 圈；底部全量，墙体逐圈递减。\n%@",
             p.text("SourceMode"), bottoms.count, turns, height, p["EF"], Int(p["EFLayers"]),
             notes.joined(separator: "\n"))
-        if p.text("SourceMode") == "Imported" { info += "\n导入外形生成单壁；原模型壁厚不沿用。" }
         if p.flag("AlignLeft") {
             info += String(format: "\n左侧对齐：首层与顶部同向；最后一圈上升 %.3f mm，总高度不变。", height - base - (turns - 1) * p["H"])
         }

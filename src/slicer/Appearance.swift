@@ -1,18 +1,30 @@
 import AppKit
 import SwiftUI
 
+private struct CollectParameterHelpKey: EnvironmentKey { static let defaultValue = false }
+extension EnvironmentValues {
+    var collectParameterHelp: Bool {
+        get { self[CollectParameterHelpKey.self] }
+        set { self[CollectParameterHelpKey.self] = newValue }
+    }
+}
+struct ParameterHelpPreference: PreferenceKey {
+    static var defaultValue: [String] = []
+    static func reduce(value: inout [String], nextValue: () -> [String]) { value += nextValue() }
+}
 struct ContextHelp: View {
-
     let texts: [String]
-    @State private var expanded = false
+    @Environment(\.collectParameterHelp) private var collected
     init(_ texts: String...) { self.texts = texts }
     var body: some View {
-        DisclosureGroup(isExpanded: $expanded) {
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(texts.indices, id: \.self) { index in uiText(texts[index]) }
-            }.font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
-        } label: {
-            Label(L("参数说明"), systemImage: "info.circle").font(.caption).foregroundStyle(.secondary)
+        if collected {
+            Color.clear.frame(height: 0).preference(key: ParameterHelpPreference.self, value: texts)
+        } else {
+            DisclosureGroup(L("说明")) {
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(texts, id: \.self) { uiText($0) }
+                }.font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
+            }.font(.caption).foregroundStyle(.secondary)
         }
     }
 }

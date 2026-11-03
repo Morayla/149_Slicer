@@ -1,9 +1,6 @@
 # Local application builds and generated resources
 /dist/
 /build/
-/resources/calibration/calibration.scn
-/resources/calibration/calibration.scn.lzfse
-/resources/calibration/calibration.metadata.json
 
 # macOS and editors
 .DS_Store
@@ -28,3 +25,4 @@ xcuserdata/
 
 # macOS application bundles
 *.app/
+*.149slicer

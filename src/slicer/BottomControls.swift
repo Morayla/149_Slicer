@@ -1,6 +1,5 @@
 import AppKit
 import SwiftUI
-import UniformTypeIdentifiers
 
 extension Workbench {
     var bottomSelection: Binding<String> {
@@ -15,62 +14,7 @@ extension Workbench {
                 self.dirty = true
             })
     }
-    func importModel() {
-        guard canImport else { return }
-        let panel = NSOpenPanel()
-        panel.title = L("导入模型")
-        panel.allowsMultipleSelection = false
-        panel.allowedContentTypes = ["stl", "obj", "step", "stp"].compactMap { UTType(filenameExtension: $0) }
-        guard panel.runModal() == NSApplication.ModalResponse.OK, let url = panel.url else { return }
-        importModel(url)
-    }
-    func importModel(_ url: URL) {
-        guard canImport else { return }
-        rememberShape()
-        guard url.isFileURL, ["stl", "obj", "step", "stp"].contains(url.pathExtension.lowercased()) else {
-            error = L("请拖入单个 STL、OBJ 或 STEP 模型文件。")
-            return
-        }
-        var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), !isDirectory.boolValue else {
-            error = L("模型文件不存在，请重新选择。")
-            return
-        }
-        fields["ImportFile"] = url.path
-        fields["SourceMode"] = "Imported"
-        dirty = true
-        preview = nil
-        gcodeURL = nil
-        savedURL = nil
-        status = LF("已选择 %@，正在更新预览。", String(url.lastPathComponent))
-    }
-    func receiveModelDrop(_ providers: [NSItemProvider]) -> Bool {
-        guard canImport else { return false }
-        guard providers.count == 1, let provider = providers.first,
-            provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier)
-        else {
-            error = L("请拖入单个 STL、OBJ 或 STEP 模型文件。")
-            return false
-        }
-        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, failure in
-            let url: URL?
-            if let data = item as? Data {
-                url = URL(dataRepresentation: data, relativeTo: nil)
-            } else if let value = item as? URL {
-                url = value
-            } else {
-                url = nil
-            }
-            DispatchQueue.main.async {
-                guard let url = url, failure == nil else {
-                    self.error = L("无法读取拖入的模型文件。")
-                    return
-                }
-                self.importModel(url)
-            }
-        }
-        return true
-    }
+
 }
 
 struct WardrobeBedTestControls: View {
@@ -78,10 +22,8 @@ struct WardrobeBedTestControls: View {
     var body: some View {
         Toggle(L("整件底部少层测试"), isOn: model.toggle("WardBedTest"))
         if model.toggle("WardBedTest").wrappedValue {
-            Picker(L("测试层数"), selection: model.binding("WardTestLayers")) {
-                uiText("2 层").tag("2")
-                uiText("3 层").tag("3")
-            }.pickerStyle(.menu)
+            ParameterPicker(
+                L("测试层数"), selection: model.binding("WardTestLayers"), options: [.init("2 层", "2"), .init("3 层", "3")])
             Toggle(L("连续升 Z（与正式件一致）"), isOn: model.toggle("WardTestContinuous"))
             uiText(
                 model.toggle("WardTestContinuous").wrappedValue
@@ -97,7 +39,7 @@ struct SkirtControls: View {
     @ObservedObject var model: Workbench
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            uiText("首层准备 · 裙边").interfaceFont(.headline)
+            uiText("裙边").interfaceFont(.headline)
             if ["Fern1060", "Fern1060E"].contains(model.fields["SourceMode"] ?? "") {
                 uiText("此造型不使用外围裙边").foregroundStyle(.secondary)
             } else if model.fields["SourceMode"] == "TravelTest" {
@@ -128,16 +70,16 @@ struct BottomControls: View {
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            uiText("底部设计").interfaceFont(.headline)
+            uiText("底部").interfaceFont(.headline)
             if model.fields["SourceMode"] == "TravelTest" {
                 uiText("跨孔测试不生成实心底。").foregroundStyle(.secondary)
             } else if model.fields["SourceMode"] == "Hopper" {
                 ContextHelp("此料桶上下贯通，不封底。大口贴平台打印首圈，再连续螺旋上升至小嘴；下端194.7 mm固定。")
             } else if model.fields["SourceMode"] == "PelletBottle" {
-                uiText("料瓶固定使用实心封底；瓶身与收口为单墙连续螺旋。首层高度在底部页设置。").interfaceFont(.caption).foregroundColor(.secondary)
-                row("封底层数", "B", "层")
-                row("其余底层层高", "BH")
-                row("底部线宽", "WB")
+                uiText("料瓶固定使用实心封底；瓶身与收口为单墙连续螺旋。首层高度在打印页设置。").interfaceFont(.caption).foregroundColor(.secondary)
+                row("底部层数", "B", "层")
+                row("底部层高", "BH")
+                row("填充线宽", "WB")
                 ContextHelp("默认2层 × 3.5 mm，共7 mm。两层交错填充，实际封闭性需试印确认。EF和首层外缘补偿不参与此造型。")
             } else if ["Fern1060", "Fern1060E"].contains(model.fields["SourceMode"] ?? "") {
                 ContextHelp("圆拱支架沿进深连续升Z；首层为闭合轮廓，不封中央开口。打印高度在造型页调整。外围裙边关闭；内部清料圈尚未加入。")
@@ -145,20 +87,20 @@ struct BottomControls: View {
                 WardrobeBedTestControls(model: model)
                 ContextHelp("挂衣体每件为闭合双墙连续路径，不封底。上下件分别打印；上件在安装时翻转。裙边属于打印准备，不计入单件连续造型路径。")
             } else if model.fields["SourceMode"] == "PipeScroll" {
-                ContextHelp("插管型保留贯通卷芯，不生成实心底。首层等高闭合，随后连续升Z；总高度在造型页，首层层高在底部页设置。")
+                ContextHelp("插管型保留贯通卷芯，不生成实心底。首层等高闭合，随后连续升Z；总高度在造型页，首层层高在打印页设置。")
             } else if model.fields["SourceMode"] == "EggScroll" {
                 uiText("蛋形双卷沿进深连续升 Z，不封闭中央留空。整体高度在造型页调整；进深自动按比例生成。").interfaceFont(.caption).foregroundColor(.secondary)
             } else if model.fields["SourceMode"] == "CornerPipe" {
                 uiText("当前为贯通管孔模块，不生成整片底面；EF 与首层外缘校准不参与。").interfaceFont(.caption).foregroundColor(.secondary)
             } else if model.fields["SourceMode"] == "SingleBud" {
-                uiText("单螺旋花蕾保留裙边与首层等高闭合路径，随后连续升 Z；不生成实心底或立柱。首层层高在底部页调整。").interfaceFont(.callout).foregroundColor(
+                uiText("单螺旋花蕾保留裙边与首层等高闭合路径，随后连续升 Z；不生成实心底或立柱。首层层高在打印页调整。").interfaceFont(.callout).foregroundColor(
                     .secondary)
             } else if model.fields["SourceMode"] == "Crescent" {
                 uiText("单弯月灯罩当前生成空心壳体，不生成底盘或灯座。灯泡参考固定在外圆中心。").interfaceFont(.callout).foregroundColor(.secondary)
             } else if model.fields["SourceMode"] == "DoubleScroll" {
                 uiText(
                     model.fields["DoubleLines"] == "3"
-                        ? "花瓶模式保留自动裙边和首层等高闭合走线；随后墙体连续升 Z，不生成整片实心底。裙边与首层层高在本页设置。"
+                        ? "花瓶模式保留自动裙边和首层等高闭合走线；随后墙体连续升 Z，不生成整片实心底。裙边与首层层高在打印页设置。"
                         : "双螺旋当前不生成整片底面或坐面。单线／双线、圈数和间距在「造型」中调整。"
                 ).interfaceFont(.callout).foregroundColor(.secondary)
             } else if model.fields["SourceMode"] == "Triple" {
@@ -176,21 +118,19 @@ struct BottomControls: View {
                 BottomDirectionControls(model: model)
                 uiText("几何封底后仍需实物静置试水，检查底面和层间是否渗漏。").interfaceFont(.caption).foregroundColor(.secondary)
             } else {
-                Picker(L("底部类型"), selection: model.bottomSelection) {
-                    uiText("无底").tag("None")
-                    uiText("环形底").tag("Annular")
-                    uiText("实心底").tag("Solid")
-                }
+                ParameterPicker(
+                    L("底部类型"), selection: model.bottomSelection,
+                    options: [.init("无底", "None"), .init("环形底", "Annular"), .init("实心底", "Solid")])
                 if model.toggle("HasBottom").wrappedValue {
+                    ParameterPicker(
+                        L("填充类型"), selection: model.binding("BottomPattern"),
+                        options: [.init("螺旋", "Spiral"), .init("平行直线", "Monotonic")]
+                            + (model.fields["BottomKind"] == "Solid" ? [.init("连续折线", "Zigzag")] : []))
                     if model.fields["BottomKind"] != "Solid" { row("内孔直径", "Din") }
                     row("底部层数", "B", "层")
                     row("底部层高", "BH")
                     row("填充线宽", "WB")
-                    Picker(L("填充图案"), selection: model.binding("BottomPattern")) {
-                        uiText("螺旋").tag("Spiral")
-                        uiText("平行直线").tag("Monotonic")
-                        if model.fields["BottomKind"] == "Solid" { uiText("连续折线").tag("Zigzag") }
-                    }
+
                     if ["Monotonic", "Zigzag"].contains(model.fields["BottomPattern"] ?? "") {
                         BottomDirectionControls(model: model)
                         ContextHelp(
@@ -204,16 +144,7 @@ struct BottomControls: View {
                     uiText("仅打印一圈平面墙脚，随后连续螺旋上升。").interfaceFont(.caption).foregroundColor(.secondary)
                 }
             }
-            Divider()
-            uiText("首层").interfaceFont(.headline)
-            if model.fields["SourceMode"] == "TravelTest" {
-                StaticNumberRow(label: "首层层高", value: "2.5")
-            } else {
-                row("首层层高", "H0")
-            }
-            row("首层流量比例", "F0", "×")
-            Divider()
-            SkirtControls(model: model)
+
         }
     }
 }
@@ -269,27 +200,24 @@ struct BottomDirectionControls: View {
         return step == 90 ? "cross" : step == 0 ? "same" : "custom"
     }
     var body: some View {
-        Picker(
-            "填充方向",
-            selection: Binding(
-                get: { direction },
-                set: { value in
-                    editingCustom = value == "custom"
-                    if value != "custom" { model.setBottomDirection(value) }
-                })
-        ) {
-            uiText("各层交叉").tag("cross")
-            uiText("各层同向").tag("same")
-            uiText("自定义").tag("custom")
-        }
-        if direction == "custom" {
-            NumberRow(model: model, label: "起始方向", key: "FillAngle", unit: "°")
-            NumberRow(model: model, label: "每层旋转", key: "FillAngleStep", unit: "°")
-            DisclosureGroup(L("指定个别层")) {
-                TextEditor(text: model.binding("FillAngles")).font(.system(.body, design: .monospaced)).frame(
-                    height: 120
-                ).padding(6).background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
-                ContextHelp("每行「层号:角度」，例如 1:45、2:90。第一层从 1 开始；未填写的层使用起始角度与逐层旋转。")
+        VStack(alignment: .leading, spacing: 10) {
+            ParameterPicker(
+                "填充方向",
+                selection: Binding(
+                    get: { direction },
+                    set: { value in
+                        editingCustom = value == "custom"
+                        if value != "custom" { model.setBottomDirection(value) }
+                    }), options: [.init("各层交叉", "cross"), .init("各层同向", "same"), .init("自定义", "custom")])
+            if direction == "custom" {
+                NumberRow(model: model, label: "起始方向", key: "FillAngle", unit: "°")
+                NumberRow(model: model, label: "每层旋转", key: "FillAngleStep", unit: "°")
+                DisclosureGroup(L("指定个别层")) {
+                    TextEditor(text: model.binding("FillAngles")).font(.system(.body, design: .monospaced)).frame(
+                        height: 120
+                    ).padding(6).background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
+                    ContextHelp("每行「层号:角度」，例如 1:45、2:90。第一层从 1 开始；未填写的层使用起始角度与逐层旋转。")
+                }
             }
         }
     }
@@ -300,5 +228,25 @@ extension Workbench {
         fields["FillAngleStep"] = direction == "cross" ? "90" : "0"
         fields["FillAngles"] = ""
         dirty = true
+    }
+}
+
+struct FirstLayerControls: View {
+    @ObservedObject var model: Workbench
+    private func row(_ label: String, _ key: String, _ unit: String = "mm") -> some View {
+        NumberRow(model: model, label: label, key: key, unit: unit)
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            uiText("首层").interfaceFont(.headline)
+            if model.fields["SourceMode"] == "TravelTest" {
+                StaticNumberRow(label: "首层层高", value: "2.5")
+            } else {
+                row("首层层高", "H0")
+            }
+            row("首层流量比例", "F0", "×")
+            Divider()
+            SkirtControls(model: model)
+        }
     }
 }

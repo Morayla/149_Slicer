@@ -5,16 +5,15 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 final class Workbench: ObservableObject {
-    @Published var parameterTab = 0
+    @Published var parameterTab = 3
+    var savedDocumentData: Data?
     @Published var selectedEFPresetID = ""
-    @Published var selectedNoisePresetID = ""
     @Published var showSendSheet = false
     @Published var documentURL: URL?
-    private var shapeDrafts: [String: [String: String]] = [:]
+    private(set) var shapeDrafts: [String: [String: String]] = [:]
     private var draftTask: DispatchWorkItem?
     var canSlice: Bool { !busy && !modelRefreshing && !modelNeedsUpdate && modelError == nil }
     var canSend: Bool { !busy && !dirty && preview != nil }
-    var canImport: Bool { !busy }
     var sendTitle: String { isBambu ? "发送到 Bambu Connect…" : "发送…" }
     func requestSend() {
         guard canSend else { return }
@@ -38,22 +37,57 @@ final class Workbench: ObservableObject {
         preferences.set(printerModel, forKey: "149.lastPrinter")
     }
     func rememberShape() {
-        let keys = Set((defaults["shape"] as? [String: Any] ?? [:]).keys).union(
-            (defaults["process"] as? [String: Any] ?? [:]).keys)
+        let keys = Set((defaults["shape"] as? [String: Any] ?? [:]).keys)
+            .union((defaults["process"] as? [String: Any] ?? [:]).keys)
         shapeDrafts[printerModel + ":" + (fields["SourceMode"] ?? "")] = fields.filter { keys.contains($0.key) }
     }
     @Published var fields: [String: String] = [:]
     @Published var preview: PreviewResult?
     @Published var modelGeometry: ModelGeometry?
+    let sharedCamera = PreviewCameraState()
+    @Published var lineStrength = 0.5
     @Published var showingModel = true
+    @Published var modelShading = "rendered"
+    @Published var parametersVisible = true
+    @Published var backgroundWhite = false {
+        didSet { preferences.set(backgroundWhite, forKey: "149.preview.background.white") }
+    }
+    @Published var materialAppearance = MaterialAppearance() {
+        didSet {
+            if let data = try? JSONEncoder().encode(materialAppearance) {
+                preferences.set(data, forKey: appearanceStorageKey)
+            }
+        }
+    }
+    @Published var selectedMaterialRecipeID = ""
+    @Published var savedMaterialRecipes: [MaterialRecipe] = []
+    @Published var factoryMaterialRecipes: [MaterialRecipe] = []
+    var materialCatalog: [PelletMaterial] = []
     @Published var previewMode: PreviewMode = .role
     @Published var showTravel = false
     @Published var showBed = false
     @Published var showBeads = true
+    @Published var showNozzle = true
+    @Published var placementTool: PlacementTool?
+    @Published var placementRotation = 0.0 {
+        didSet { if placementRotation != oldValue { savePlacement() } }
+    }
+    @Published var placementOffset = SIMD2<Double>(repeating: 0) {
+        didSet {
+            if placementOffset != oldValue {
+                savePlacement()
+            }
+        }
+    }
+    var placementCamera: PlacementCamera?
+    var placementBedWasVisible = false
     @Published var panMode = false
+    @Published var cameraOrientation = 5
     @Published var beadViewAction = 0
     @Published var previewZoom = 1.0
     func cameraAction(_ mode: Int) {
+        if [1, 3, 4, 5].contains(mode) { cameraOrientation = mode }
+        if mode == 0 { cameraOrientation = 5 }
         if [0, 2, 6].contains(mode) { previewZoom = 1 }
         if mode == 0 { panMode = false }
         if mode == 6 { showBed = true }
@@ -63,6 +97,13 @@ final class Workbench: ObservableObject {
     private var preparedModel: NativePreparedModel?
     private var preparedFields: [String: String] = [:]
     var modelNeedsUpdate: Bool { preparedModel == nil || preparedFields != modelInputs }
+    private var isAdjustingPreview = false
+    func setInteractivePreview(_ adjusting: Bool) {
+        guard adjusting != isAdjustingPreview else { return }
+        isAdjustingPreview = adjusting
+        scheduleModelPreview(immediate: true)
+    }
+    private var previewNeedsUpdate: Bool { modelNeedsUpdate || modelGeometry?.interactive != isAdjustingPreview }
     private var modelInputs: [String: String] {
         var keys = Set((defaults["shape"] as? [String: Any] ?? [:]).keys)
         keys.formUnion((defaults["process"] as? [String: Any] ?? [:]).keys)
@@ -74,87 +115,110 @@ final class Workbench: ObservableObject {
     }
     @Published var modelRefreshing = false
     @Published var modelError: String?
-    private var modelRevision = 0
     private var modelTask: DispatchWorkItem?
-    private var modelComputation: SliceComputation?
     private var modelRunning = false
+    private var previewComputation: SliceComputation?
+    private var runningInputs: [String: String] = [:]
     private let modelQueue = DispatchQueue(label: "149.model-preview", qos: .userInitiated)
     private var modelCache: [(inputs: [String: String], prepared: NativePreparedModel, geometry: ModelGeometry)] = []
     func scheduleModelPreview(immediate: Bool = false) {
         guard !busy else { return }
-        modelRevision += 1
-        modelTask?.cancel()
-        modelComputation?.cancel()
         modelError = nil
-        guard modelNeedsUpdate else {
+        guard previewNeedsUpdate else {
+            modelTask?.cancel()
+            modelTask = nil
             modelRefreshing = false
             return
         }
         showingModel = true
-        dirty = true
+        if modelNeedsUpdate { dirty = true }
         modelRefreshing = true
         let inputs = modelInputs
-        if fields["SourceMode"] != "Imported", let cached = modelCache.first(where: { $0.inputs == inputs }) {
+        if modelRunning && inputs != runningInputs,
+            !isAdjustingPreview || inputs["SourceMode"] != runningInputs["SourceMode"]
+        {
+            previewComputation?.cancel()
+        }
+        if !isAdjustingPreview,
+            let cached = modelCache.first(where: { $0.inputs == inputs })
+        {
             preparedModel = cached.prepared
             preparedFields = inputs
             modelGeometry = cached.geometry
             modelRefreshing = false
             return
         }
-        guard !modelRunning else { return }
-        let work = DispatchWorkItem { [weak self] in self?.generateModel() }
+        // Finish the current frame, then pick up the latest parameters. Continuous dragging must not starve the preview.
+        guard !modelRunning, modelTask == nil else { return }
+        let work = DispatchWorkItem { [weak self] in
+            self?.modelTask = nil
+            self?.generateModel()
+        }
         modelTask = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + (immediate ? 0 : 0.3), execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + (immediate ? 0 : 1.0 / 30), execute: work)
     }
     func generateModel() {
-        guard !busy, !modelRunning, modelNeedsUpdate else {
+        guard !busy, !modelRunning, previewNeedsUpdate else {
             modelRefreshing = false
             return
         }
-        let revision = modelRevision
         let inputs = modelInputs
         do {
-            guard let engine = engine else { throw message("原生切片引擎未能初始化。") }
+            guard let engine else { throw message("原生切片引擎未能初始化。") }
             let raw = try project()
+            let interactive = isAdjustingPreview
+            let reusable = preparedFields == inputs && modelGeometry?.interactive == interactive ? preparedModel : nil
             let computation = SliceComputation()
-            modelComputation = computation
+            previewComputation = computation
+            runningInputs = inputs
             modelRunning = true
             modelRefreshing = true
             modelError = nil
             modelQueue.async { [weak self] in
                 do {
                     let (prepared, geometry) = try computation.run {
-                        let prepared = try engine.prepareModel(raw)
-                        return (prepared, try ModelGeometry(prepared))
+                        let prepared = try reusable ?? engine.prepareModel(raw, samplingLimit: interactive ? 128 : nil)
+                        return (prepared, try ModelGeometry(prepared, interactive: interactive))
                     }
                     DispatchQueue.main.async {
-                        guard let self = self else { return }
+                        guard let self else { return }
                         self.modelRunning = false
-                        guard revision == self.modelRevision, inputs == self.modelInputs else {
+                        if computation.isCancelled {
                             self.scheduleModelPreview(immediate: true)
                             return
                         }
-                        self.preparedModel = prepared
-                        self.preparedFields = inputs
-                        self.modelGeometry = geometry
-                        self.modelRefreshing = false
-                        self.modelError = nil
-                        if self.fields["SourceMode"] != "Imported", prepared.shape.wall.count < 50000 {
-                            self.modelCache.removeAll { $0.inputs == inputs }
-                            self.modelCache.append((inputs, prepared, geometry))
-                            if self.modelCache.count > 2 { self.modelCache.removeFirst() }
+                        let latest = inputs == self.modelInputs && interactive == self.isAdjustingPreview
+                        if inputs == self.modelInputs
+                            || (self.modelNeedsUpdate && inputs["SourceMode"] == self.modelInputs["SourceMode"])
+                        {
+                            self.preparedModel = prepared
+                            self.preparedFields = inputs
+                            self.modelGeometry = geometry
+                        }
+                        self.modelRefreshing = self.previewNeedsUpdate
+                        if latest {
+                            self.modelError = nil
+                            if !interactive, prepared.shape.wall.count < 50000 {
+                                self.modelCache.removeAll { $0.inputs == inputs }
+                                self.modelCache.append((inputs, prepared, geometry))
+                                if self.modelCache.count > 4 { self.modelCache.removeFirst() }
+                            }
+                        } else {
+                            self.scheduleModelPreview(immediate: true)
                         }
                     }
                 } catch {
                     DispatchQueue.main.async {
-                        guard let self = self else { return }
+                        guard let self else { return }
                         self.modelRunning = false
-                        guard revision == self.modelRevision else {
+                        if error is CancellationError || inputs != self.modelInputs
+                            || interactive != self.isAdjustingPreview
+                        {
                             self.scheduleModelPreview(immediate: true)
-                            return
+                        } else {
+                            self.modelRefreshing = false
+                            self.modelError = error.localizedDescription
                         }
-                        self.modelRefreshing = false
-                        self.modelError = error.localizedDescription
                     }
                 }
             }
@@ -169,13 +233,17 @@ final class Workbench: ObservableObject {
     @Published var error: String?
     @Published var savedURL: URL?
     @Published var zLimit = 150.0
-    private let speedKeys: Set<String> = [
+    let speedKeys: Set<String> = [
         "F", "BottomF", "WallF", "SKIRT_F", "G1_TRAVEL_F", "G1_Z_F", "G1_RETRACT_F", "G1_RESTORE_F", "G1_WIPE_F",
     ]
-    private var defaults: [String: Any] = [:]
+    private(set) var defaults: [String: Any] = [:]
     var gcodeURL: URL?
     private var tempFolder: URL?
-    private var sliceCache: [Data: URL] = [:]
+    private struct CachedSlice {
+        let folder: URL
+        let preview: PreviewResult
+    }
+    private var sliceCache: [Data: CachedSlice] = [:]
     private var sliceCacheOrder: [Data] = []
     private let resource: URL
     let preferences: UserDefaults
@@ -184,20 +252,43 @@ final class Workbench: ObservableObject {
     init(resource: URL = Bundle.main.resourceURL!, preferences: UserDefaults = .standard) {
         self.resource = resource
         self.preferences = preferences
+        backgroundWhite = preferences.bool(forKey: "149.preview.background.white")
         do {
             let data = try Data(contentsOf: resource.appendingPathComponent("definitions/defaults.json"))
             defaults = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+            materialCatalog = try JSONDecoder().decode(
+                [PelletMaterial].self,
+                from: Data(contentsOf: resource.appendingPathComponent("definitions/pellet_materials.json")))
             engine = try NativeSliceEngine(resources: resource)
             try applyProject(defaults)
             if let name = preferences.string(forKey: "149.lastPrinter"),
                 let draft = preferences.dictionary(forKey: "149.machine.fields." + name) as? [String: String]
             {
-                fields.merge(draft, uniquingKeysWith: { $1 })
+                fields.merge(
+                    draft.filter { $0.key != "ImportFile" && $0.key != "ImportScale" }, uniquingKeysWith: { $1 })
+                if fields["SourceMode"] == "Imported" {
+                    for (key, value) in defaults["shape"] as! [String: Any] {
+                        fields[key] = (value as? NSNumber)?.stringValue ?? String(describing: value)
+                    }
+                }
             }
+            let savedTransform =
+                preferences.dictionary(forKey: "149.placement.transform." + printerModel) as? [String: Double]
+            placementRotation = preferences.double(forKey: "149.placement.rotation." + printerModel)
+            if let offset = preferences.array(forKey: "149.placement.offset." + printerModel) as? [Double],
+                offset.count == 2
+            {
+                placementOffset = SIMD2(offset[0], offset[1])
+            }
+            if let savedTransform { restorePlacement(savedTransform) }
+            prepareMaterialLibrary()
+            loadMaterialAppearance()
+            savedDocumentData = try documentData()
         } catch { self.error = LF("无法读取内置参数：%@", String(error.localizedDescription)) }
     }
     deinit {
-        for folder in Set(sliceCache.values) { try? FileManager.default.removeItem(at: folder) }
+        previewComputation?.cancel()
+        for folder in Set(sliceCache.values.map(\.folder)) { try? FileManager.default.removeItem(at: folder) }
         if let folder = tempFolder { try? FileManager.default.removeItem(at: folder) }
     }
     func binding(_ key: String) -> Binding<String> {
@@ -205,51 +296,10 @@ final class Workbench: ObservableObject {
             get: { self.fields[key] ?? "" },
             set: { value in
                 if key == "SourceMode" {
-                    guard value != self.fields[key] else { return }
-                    self.rememberShape()
-                    if let draft = self.shapeDrafts[self.printerModel + ":" + value] {
-                        self.fields.merge(draft, uniquingKeysWith: { $1 })
-                        self.fields[key] = value
-                        self.dirty = true
-                        return
-                    }
+                    self.selectShape(value)
+                    return
                 }
-                let wasFern = ["Fern1060", "Fern1060E"].contains(self.fields["SourceMode"] ?? "")
                 self.fields[key] = value
-                if key == "SourceMode" && value == "EggScroll" {
-                    self.fields.merge(["W": "6", "H": "3", "H0": "2.5"], uniquingKeysWith: { _, new in new })
-                }
-                if key == "SourceMode" && value == "Wardrobe" {
-                    for field in ["H", "H0"] {
-                        if let height = Double(self.fields[field] ?? ""), height > 3.5 { self.fields[field] = "3.5" }
-                    }
-                }
-                if key == "SourceMode" && value == "Hopper" {
-                    self.fields.merge(
-                        [
-                            "W": "8", "WB": "8", "H": "3.5", "H0": "3.5", "BH": "3.5", "HasBottom": "0", "N": "288",
-                            "AlignLeft": "1", "EdgeCalibrationEnabled": "0", "WaveEnabled": "0", "MeshEnabled": "0",
-                            "NoiseEnabled": "0", "NoiseZEnabled": "0",
-                        ], uniquingKeysWith: { $1 })
-                }
-                if key == "SourceMode" && value == "PelletBottle" {
-                    self.fields.merge(
-                        [
-                            "W": "8", "WB": "8", "H": "3.5", "H0": "3.5", "BH": "3.5", "B": "2", "HasBottom": "1",
-                            "BottomKind": "Solid", "BottomPattern": "Zigzag", "EFEnabled": "0", "AlignLeft": "1",
-                            "EdgeCalibrationEnabled": "0", "WaveEnabled": "0", "MeshEnabled": "0", "NoiseEnabled": "0",
-                            "NoiseZEnabled": "0",
-                        ], uniquingKeysWith: { $1 })
-                }
-                if key == "SourceMode" && value == "PipeScroll" {
-                    self.fields.merge(
-                        [
-                            "PipeScrollProfile": "2", "PipeScrollSpacing": "167.96", "PipeScrollRot": "0",
-                            "PipeScrollHeight": "250", "W": "8", "H": "3", "H0": "2.5", "HasBottom": "0",
-                            "EFEnabled": "0", "WaveEnabled": "0", "MeshEnabled": "0", "NoiseEnabled": "0",
-                            "NoiseZEnabled": "0",
-                        ], uniquingKeysWith: { $1 })
-                }
                 if key == "PipeScrollProfile" {
                     let profileDefaults: [String: String] =
                         value == "2"
@@ -258,13 +308,6 @@ final class Workbench: ObservableObject {
                             ? ["W": "6", "PipeScrollSpacing": "215", "PipeScrollRot": "-6.4"]
                             : ["W": "6", "PipeScrollSpacing": "150", "PipeScrollRot": "0"])
                     self.fields.merge(profileDefaults, uniquingKeysWith: { $1 })
-                }
-                if key == "SourceMode" && ["Fern1060", "Fern1060E"].contains(value) && !wasFern {
-                    self.fields.merge(
-                        [
-                            "W": "8", "H": "3.5", "H0": "3.5", "HasBottom": "0", "EFEnabled": "0", "WaveEnabled": "0",
-                            "MeshEnabled": "0", "NoiseEnabled": "0", "NoiseZEnabled": "0",
-                        ], uniquingKeysWith: { $1 })
                 }
                 self.dirty = true
             })
@@ -278,7 +321,7 @@ final class Workbench: ObservableObject {
             })
     }
     func project() throws -> [String: Any] {
-        var output: [String: Any] = ["version": 1]
+        var output: [String: Any] = ["version": 1, "placement": placementValues]
         for group in ["shape", "machine", "process", "material"] {
             let schema = defaults[group] as! [String: Any]
             var values: [String: Any] = [:]
@@ -304,6 +347,9 @@ final class Workbench: ObservableObject {
     }
     func applyProject(_ raw: [String: Any]) throws {
         guard raw["version"] as? Int == 1 else { throw message("不支持的项目版本。") }
+        if (raw["shape"] as? [String: Any])?["SourceMode"] as? String == "Imported" {
+            throw message("此项目使用已移除的模型导入功能，无法打开。")
+        }
         var next: [String: String] = [:]
         for group in ["shape", "machine", "process", "material"] {
             let values: [String: Any]
@@ -315,7 +361,9 @@ final class Workbench: ObservableObject {
                 throw message(LF("项目缺少 %@ 参数。", String(group)))
             }
             let schema = defaults[group] as! [String: Any]
-            if let unknown = values.keys.first(where: { schema[$0] == nil }) {
+            if let unknown = values.keys.first(where: {
+                schema[$0] == nil && !(group == "shape" && ["ImportFile", "ImportScale"].contains($0))
+            }) {
                 throw message(LF("本版不支持参数 %@。", String(unknown)))
             }
             for (key, fallback) in schema {
@@ -337,56 +385,31 @@ final class Workbench: ObservableObject {
         }
         guard
             [
-                "Cylinder", "Ellipse", "Cone", "Triple", "TripleVase", "DoubleScroll", "NonplanarCylinder", "Imported",
+                "Cylinder", "Ellipse", "Cone", "Triple", "TripleVase", "DoubleScroll", "NonplanarCylinder",
                 "Crescent", "SingleBud", "CornerPipe", "EggScroll", "Wardrobe", "TravelTest", "Fern1060", "Fern1060E",
                 "PipeScroll", "PelletBottle", "Hopper",
             ].contains(next["SourceMode"] ?? "")
         else { throw message("不支持的造型类型。") }
+        let appearance: MaterialAppearance?
+        if let rawAppearance = raw["appearance"] {
+            appearance = try JSONDecoder().decode(
+                MaterialAppearance.self, from: JSONSerialization.data(withJSONObject: rawAppearance))
+            guard appearance!.valid else { throw message("材质参数无效。") }
+        } else {
+            appearance = nil
+        }
+        let placement = raw["placement"] as? [String: Double] ?? [:]
+        guard placement.values.allSatisfy(\.isFinite) else { throw message("摆放参数无效。") }
+        finishPlacement()
         fields = next
+        restorePlacement(placement)
+        prepareMaterialLibrary()
+        if let appearance { materialAppearance = appearance } else { loadMaterialAppearance() }
         dirty = true
         savedURL = nil
         documentURL = nil
         shapeDrafts.removeAll()
         selectedEFPresetID = ""
-        selectedNoisePresetID = ""
-    }
-    func writeProject(to url: URL) throws {
-        let data = try JSONSerialization.data(withJSONObject: project(), options: [.prettyPrinted, .sortedKeys])
-        try data.write(to: url, options: .atomic)
-        documentURL = url
-        status = LF("项目已保存：%@", String(url.lastPathComponent))
-    }
-    func saveProject(asNew: Bool = false) {
-        do {
-            if !asNew, let url = documentURL {
-                try writeProject(to: url)
-                return
-            }
-            let panel = NSSavePanel()
-            panel.title = L(asNew ? "另存项目…" : "保存项目")
-            panel.nameFieldStringValue = documentURL?.lastPathComponent ?? L("149 项目.json")
-            guard panel.runModal() == .OK, let url = panel.url else { return }
-            try writeProject(to: url)
-        } catch { self.error = error.localizedDescription }
-    }
-    func openProject() {
-        let panel = NSOpenPanel()
-        panel.title = L("打开 149 项目")
-        panel.allowedContentTypes = [.json]
-        panel.allowsMultipleSelection = false
-        guard panel.runModal() == NSApplication.ModalResponse.OK, let url = panel.url else { return }
-        do {
-            let raw = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
-            guard let raw = raw else { throw message("项目格式无效。") }
-            try applyProject(raw)
-            documentURL = url
-            preview = nil
-            gcodeURL = nil
-            preparedModel = nil
-            modelGeometry = nil
-            showingModel = true
-            status = LF("已载入 %@，模型预览会自动更新。", String(url.lastPathComponent))
-        } catch { self.error = error.localizedDescription }
     }
     func generate() {
         guard !busy else { return }
@@ -397,10 +420,8 @@ final class Workbench: ObservableObject {
         do {
             guard let engine = engine else { throw message("原生切片引擎未能初始化。") }
             let data = try JSONSerialization.data(withJSONObject: project(), options: [.sortedKeys])
-            // Imported files can change at the same path, including while the app
-            // is open. Always let the engine read and validate their current bytes.
-            let cacheable = fields["SourceMode"] != "Imported"
-            let cachedFolder = cacheable ? sliceCache[data] : nil
+            let cached = sliceCache[data]
+            let cachedFolder = cached?.folder
             let folder =
                 cachedFolder
                 ?? FileManager.default.temporaryDirectory.appendingPathComponent("149_Slicer-" + UUID().uuidString)
@@ -418,48 +439,33 @@ final class Workbench: ObservableObject {
             DispatchQueue.global(qos: .userInitiated).async {
                 do {
                     let result: PreviewResult
-                    var refreshedModel: NativePreparedModel?
-                    var refreshedGeometry: ModelGeometry?
                     if cachedFolder == nil {
                         let raw = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-                        let generated = try engine.generate(raw, prepared: prepared)
+                        let generated = try PlacementRotation.generate(raw, engine: engine, prepared: prepared)
                         try generated.write(to: folder)
                         result = try PreviewResult(native: generated)
-                        if !cacheable, let prepared = prepared {
-                            let fresh = NativePreparedModel(key: prepared.key, shape: generated.model)
-                            refreshedGeometry = try ModelGeometry(fresh)
-                            refreshedModel = fresh
-                        }
-                        if cacheable {
-                            try JSONEncoder().encode(result).write(
-                                to: folder.appendingPathComponent("result.json"), options: .atomic)
-                        }
                     } else {
-                        result = try JSONDecoder().decode(
-                            PreviewResult.self, from: Data(contentsOf: folder.appendingPathComponent("result.json")))
+                        result = cached!.preview
                     }
                     guard result.ok else { throw self.message("生成失败。") }
                     let elapsed = Date().timeIntervalSince(started)
-                    let currentModel = refreshedModel
-                    let currentGeometry = refreshedGeometry
                     DispatchQueue.main.async {
-                        if let currentModel = currentModel, let currentGeometry = currentGeometry {
-                            self.preparedModel = currentModel
-                            self.modelGeometry = currentGeometry
-                        }
                         if let previous = self.tempFolder, previous != folder,
-                            !self.sliceCache.values.contains(previous)
+                            !self.sliceCache.values.contains(where: { $0.folder == previous })
                         {
                             try? FileManager.default.removeItem(at: previous)
                         }
-                        if cacheable {
-                            self.sliceCache[data] = folder
+                        do {
+                            self.sliceCache[data] = CachedSlice(folder: folder, preview: result)
                             self.sliceCacheOrder.removeAll { $0 == data }
                             self.sliceCacheOrder.append(data)
-                            while self.sliceCacheOrder.count > 6 {
+                            while self.sliceCacheOrder.count > 3
+                                || (self.sliceCache.count > 1
+                                    && self.sliceCache.values.reduce(0, { $0 + $1.preview.segments.count }) > 250_000)
+                            {
                                 let key = self.sliceCacheOrder.removeFirst()
                                 if let old = self.sliceCache.removeValue(forKey: key) {
-                                    try? FileManager.default.removeItem(at: old)
+                                    try? FileManager.default.removeItem(at: old.folder)
                                 }
                             }
                         }

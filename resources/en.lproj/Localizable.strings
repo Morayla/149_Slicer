@@ -23,7 +23,6 @@
 "X 光" = "X-ray";
 "X 光白底" = "White X-ray background";
 "Z 走法" = "Z motion";
-"Z 轴向上，自动落到平台；STL / OBJ 单位按毫米读取。导入外轮廓生成单壁，不沿用原模型壁厚。" = "Z points up and the model is placed on the bed. STL/OBJ units are interpreted as millimeters. A single wall follows the imported outer contour; original wall thickness is not retained.";
 "Ø210 可调高料桶 · 固定锥嘴" = "Ø210 adjustable-height hopper · Fixed tapered outlet";
 "↑ 远离下限位" = "↑ Away from lower limit";
 "↑ 远离限位" = "↑ Away from limit";
@@ -291,7 +290,6 @@
 "密度 1.28 g/cm³，引用 RSD038 type R 的实体密度；透明微蓝牌号对应打印实例，不是自然色版本。" = "Solid density is 1.28 g/cm³ from RSD038 type R. The clear light-blue grade matches the print example, not the natural-color grade.";
 "导入与测试" = "Import and testing";
 "导入模型" = "Import model";
-"导入模型…" = "Import model…";
 "导入补偿预设…" = "Import compensation preset…";
 "导出 CSV" = "Export CSV";
 "导出 CSV…" = "Export CSV…";
@@ -486,7 +484,6 @@
 "无底" = "Open base";
 "无法构建 Bambu Connect 链接。" = "Could not create the Bambu Connect link.";
 "无法确认文件上传结果，请到机器网页查看。" = "Upload result is unknown. Check the printer web interface.";
-"无法读取拖入的模型文件。" = "Unable to read the dropped model file.";
 "无法读取相机画面" = "Unable to read camera image";
 "无法连接 Moonraker。请确认同一网络、机器地址和端口；可尝试 IP:7125。" = "Could not connect to Moonraker. Check network, printer address and port; try IP:7125.";
 "时长" = "Duration";
@@ -552,7 +549,6 @@
 "模型 %.1f g · 裙边 %.1f g · 额外 %.1f g" = "Model %.1f g · Skirt %.1f g · Extra %.1f g";
 "模型中心 X" = "Model center X";
 "模型中心 Y" = "Model center Y";
-"模型文件不存在，请重新选择。" = "Model file not found. Select it again.";
 "模型预览正在更新，请稍候。" = "Updating model preview. Please wait.";
 "模拟噪声" = "Simulated noise";
 "模拟数据 · 不代表实测结果" = "Simulated data · Not a measurement";
@@ -634,7 +630,7 @@
 "清除设备记录" = "Clear device records";
 "温度" = "Temperature";
 "湿度" = "Humidity";
-"演示" = "Simulation";
+"演示" = "Demo";
 "演示与运动参数" = "Simulation and motion";
 "演示视图" = "Presentation";
 "灯体长度（打印高度）" = "Lamp length (print height)";
@@ -716,7 +712,6 @@
 "统一约设定层高" = "Approximately uniform layer height";
 "继续" = "Resume";
 "缩小" = "Zoom out";
-"缩放比例" = "Zoom";
 "网孔速度上限" = "Mesh speed limit";
 "网孔高度上限" = "Mesh height limit";
 "自动匹配波数" = "Automatically match wave count";
@@ -786,7 +781,6 @@
 "请在造型页选择双线闭合或花瓶走线，使用闭合轮廓内缩补偿。当前 EF 数值和逐圈表会保留。" = "Choose a closed double path or vase mode under Shape for inward contour compensation. Current EF values and per-turn tables are retained.";
 "请填写打印机 IP 或网页地址。" = "Enter the printer IP or web address.";
 "请填写有效密度及 0–100% 范围内的比例（不含 0）。" = "Enter a valid density and a percentage greater than 0 and at most 100.";
-"请拖入单个 STL、OBJ 或 STEP 模型文件。" = "Drop one STL, OBJ or STEP model file.";
 "请框选完整数字区域并输入有效读数" = "Select the entire numeric display and enter a valid reading";
 "请检查主表和副表刻度值" = "Check the main and secondary dial scales";
 "请检查摄像头地址、网页访问设置和网络连接。" = "Check the camera address, web access settings and network connection.";
@@ -925,7 +919,6 @@
 "已导出：%@" = "Exported: %@";
 "项目已保存：%@" = "Project saved: %@";
 "已载入 %@，模型预览会自动更新。" = "Loaded %@. Model preview updates automatically.";
-"已选择 %@，正在更新预览。" = "Selected %@. Updating preview.";
 "无法读取内置参数：%@" = "Could not read default settings: %@";
 "%@ 参数格式无效。" = "Invalid format for %@.";
 "%@ 的材料参数无效，未保存。" = "Invalid material value for %@. Not saved.";
@@ -940,3 +933,260 @@
 "扫描设备未返回有效响应" = "No valid response from scanner";
 "相机图像无效" = "Invalid camera image";
 "设备请求失败（HTTP %@）" = "Device request failed (HTTP %@)";
+"设置" = "Settings";
+"实机测量" = "Device measurement";
+"模拟测量" = "Simulated measurement";
+"白色背景" = "White background";
+"隐藏参数，突出画面与测量结果" = "Hide parameters and focus on the scene and measurements";
+"装置地址" = "Device address";
+"访问密钥" = "Access key";
+"校准装置" = "Calibration device";
+"连接校准装置的相机与扫描控制。模拟测量无需配置。" = "Connect to the calibration device for camera readings and scan control. Simulation requires no connection.";
+"偏差图" = "Deviation chart";
+
+"形态" = "Shape";
+
+"层纹模拟" = "Layer simulation";
+
+"测量" = "Measurements";
+
+"连接装置" = "Connect device";
+
+"左右拖动调整；单击输入。⇧ 加速，⌥ 微调。" = "Drag left or right to adjust; click to type. ⇧ faster, ⌥ finer.";
+
+"预览已更新；重新测量后更新记录。" = "Preview updated. Measure again to update the records.";
+
+"上次测量" = "Previous measurements";
+
+"重新测量 ↓" = "Measure again ↓";
+
+"收起参数" = "Hide parameters";
+
+"收起测量" = "Hide measurements";
+
+"白模" = "Solid";
+
+"材质预览" = "Material Preview";
+
+"边线" = "Edges";
+
+"X-ray" = "X-ray";
+
+"装置部件" = "Device Components";
+
+"电气组件" = "Electronics";
+
+"打开接线盒" = "Open Enclosure";
+
+"线条强度" = "Line Strength";
+
+"进入演示" = "Enter Presentation";
+
+"退出演示" = "Exit Presentation";
+
+"说明" = "Notes";
+
+"模拟偏差" = "Simulated Deviation";
+
+"演示速度" = "Simulation Timing";
+
+"扫描范围" = "Scan Range";
+
+"运动参数" = "Motion";
+
+"手动移动" = "Manual Motion";
+
+"逐层修正" = "Layer Corrections";
+
+"测点记录" = "Measurements";
+
+"启动流程" = "Startup Sequence";
+
+"开始测量 ↓" = "Start Measurement ↓";
+
+"拖动调整；按住选择步长；单击输入。中键可直接打开步长。" = "Drag to adjust; hold to choose an increment; click to type. Middle-click opens the value ladder.";
+
+"选择材料载入预设；修改后需手动保存预设。密度只影响用料重量。" = "Selecting a material loads its preset. Save changes explicitly. Density only affects material weight.";
+
+"开启后，首层与收尾统一对齐左侧；最后一圈自动补齐高度。" = "Aligns the first layer and finish to the left. The final turn completes the height.";
+
+"顶部自动补齐并整平，不叠加减流收尾。" = "Automatically fills and levels the top without an additional flow taper.";
+
+"仅调整擦拭前的回抽比例，总回抽量不变。" = "Adjusts the fraction retracted before wiping; total retraction is unchanged.";
+
+"裙边擦拭预留约 2 mm 接头净空；料头效果需试打确认。" = "Skirt wiping leaves about 2 mm of joint clearance. Verify the result with a test print.";
+
+"首层等高，之后连续升 Z；层高是每圈最大上升量，顶部自动整平。" = "The first layer is planar, followed by continuous Z rise. Layer height is the maximum rise per turn; the top is leveled automatically.";
+
+"内缩量在过渡范围内逐渐减为零；关闭补偿保留数据。" = "Inset decreases to zero across the transition. Disabling compensation retains its values.";
+
+"沿闭合轮廓向内补偿；内缩量须小于双线净隙的一半。" = "Insets the closed contour. Inset must remain below half the gap between the two paths.";
+
+"每件双墙连续升 Z，上段倒置打印；层高不超过 3.5 mm。安装与承载需实物验证。" = "Each part uses two continuous walls; upper parts print inverted. Layer height is limited to 3.5 mm. Verify fit and load capacity physically.";
+
+"原版与 E 版共用尺寸；E 版只缩短卷尖。切片后可比较用料。" = "The original and E variants share dimensions; E shortens only the curled tips. Compare material use after slicing.";
+
+"模拟" = "Simulation";
+"高度" = "Height";
+"线宽" = "Line width";
+"测量层数" = "Layers to measure";
+"运动速度" = "Travel speed";
+"稳定等待" = "Settling delay";
+"手动控制" = "Manual control";
+"允许偏差" = "Allowed deviation";
+"稳定容差" = "Stability tolerance";
+"补偿起始高度" = "Compensation start height";
+"生成补偿方案" = "Generate compensation";
+"近零阈值" = "Near-zero threshold";
+"相对首点变化" = "Change from first point";
+"位置 · mm" = "Position · mm";
+"偏差 · mm" = "Deviation · mm";
+"测量方向" = "Direction";
+"上行" = "Up";
+"下行" = "Down";
+"设备已连接" = "Device connected";
+"开始测量" = "Start measurement";
+"重新测量" = "Restart measurement";
+"停止设备" = "Stop device";
+"展开参数" = "Show parameters";
+"展开测量" = "Show measurements";
+"跟随测量" = "Follow measurement";
+"向下移动" = "Move down";
+"向上移动" = "Move up";
+"设为原点" = "Set origin";
+"校准限位" = "Reference limit";
+"相对原点位置" = "Position from origin";
+"限位已触发" = "Limit triggered";
+"限位已松开" = "Limit released";
+"限位 —" = "Limit —";
+"移动距离 %@ mm" = "Move %@ mm";
+"样件倒置，沿打印层顺序测量。" = "The specimen is inverted and measured in print-layer order.";
+"每次移动结束后，等待读数稳定的时间。" = "Delay after each movement before taking a reading.";
+"高亮超过此值的偏差，不改变测量记录或补偿计算。" = "Highlight deviations beyond this value without changing records or compensation.";
+"对应切片中墙体的起始 Z 高度。" = "The wall start Z height in the slicer.";
+"小于此值的读数显示为 ≈ 0；原始记录不变。" = "Readings below this value display as ≈ 0; raw records stay unchanged.";
+"将当前位置设为原点，不移动设备。" = "Set the current position as origin without moving the device.";
+
+"外观调整" = "Appearance";
+"切换参数栏" = "Toggle Parameters";
+"切换结果栏" = "Toggle Results";
+"视图" = "View";
+"导出测量数据…" = "Export Measurements…";
+"常用移动距离" = "Jog presets";
+
+"背景" = "Background";
+"黑" = "Black";
+"白" = "White";
+
+"渲染材质" = "Render Material";
+
+"材质预设" = "Material Preset";
+
+"保存材质…" = "Save Material…";
+
+"重置材质" = "Reset Material";
+
+"材质名称" = "Material Name";
+
+"粗糙度" = "Roughness";
+
+"金属度" = "Metallic";
+
+"透射" = "Transmission";
+
+"折射率" = "IOR";
+
+"哑光" = "Matte";
+
+"透明" = "Clear";
+
+"金属" = "Metal";
+
+"编辑材质…" = "Edit Material…";
+
+"仅影响预览。折射使用实时环境近似。" = "Preview only. Refraction uses a real-time environment approximation.";
+
+"材质参数无效。" = "Invalid material properties.";
+
+
+
+
+
+"透视轮廓与逐层料道。" = "Translucent contours and individual extrusion paths.";
+"材质" = "Material";
+"路径着色" = "Path coloring";
+"切换为黑色背景" = "Switch to black background";
+"切换为白色背景" = "Switch to white background";
+"平台" = "Bed";
+
+"另存为新材料" = "Save as New Material";
+"名称" = "Name";
+"回抽与恢复" = "Retraction and Recovery";
+"回抽体积" = "Retraction volume";
+"回抽抬升" = "Z hop";
+"外观" = "Appearance";
+"密度" = "Density";
+"底部填充" = "Bottom infill";
+"恢复速度" = "Recovery speed";
+"打印速度" = "Print Speed";
+"挤出倍率" = "Extrusion multiplier";
+"挤出机标定" = "Extruder Calibration";
+"挤出校正" = "Extrusion Correction";
+"接缝与收尾" = "Seam and Finish";
+"接缝对齐左侧" = "Align seam to the left";
+"擦拭前回抽" = "Retraction before wiping";
+"热床" = "Bed";
+"空移与擦拭" = "Travel and Wiping";
+"编辑材料" = "Edit Material";
+"自定义材料" = "Custom Material";
+"透光率" = "Transmission";
+"顶部自动整平" = "Automatic top leveling";
+"颗粒挤出系数" = "Pellet Extrusion Factor";
+"颜色" = "Color";
+"额外恢复体积" = "Extra recovery volume";
+"每转挤出体积" = "Extrusion volume per revolution";
+"中心净空直径" = "Center clearance diameter";
+"墙间净距" = "Wall clearance";
+"孔径余量" = "Hole diameter allowance";
+"成品高度" = "Finished height";
+
+"摆放后的模型或裙边超出打印平台，请调整位置或方向。" = "The placed model or skirt exceeds the build area. Adjust its position or orientation.";
+
+"切片后查看打印路径" = "Slice to view the print paths";
+"形态已更改，请重新切片。" = "The model has changed. Slice again to update the paths.";
+"重新切片" = "Slice Again";
+
+"整体" = "Overall";
+"摆放参数无效。" = "Invalid placement parameters.";
+"此项目使用已移除的模型导入功能，无法打开。" = "This project uses the removed model import feature and cannot be opened.";
+"填充类型" = "Fill pattern";
+"每圈采样数" = "Samples per turn";
+"瓶身高度" = "Body height";
+"肩部高度" = "Shoulder height";
+"瓶口高度" = "Neck height";
+"下段高度" = "Lower section height";
+"149 项目" = "149 Project";
+"保存当前项目的更改？" = "Save changes to the current project?";
+"打开另一个项目会替换当前参数。" = "Opening another project replaces the current parameters.";
+"请等待当前切片完成后再打开项目。" = "Wait for slicing to finish before opening another project.";
+"波峰幅度" = "Peak amplitude";
+"波谷幅度" = "Valley amplitude";
+"随机波" = "Noise";
+"三角波" = "Triangle wave";
+"类型" = "Type";
+"选择预设" = "Select a preset";
+"外形" = "Form";
+"圆台" = "Tapered cylinder";
+"修饰" = "Modifiers";
+"无" = "None";
+"墙体" = "Wall";
+"收尾" = "Finish";
+"圆柱" = "Cylinder";
+"弯月" = "Crescent";
+"螺旋花蕾" = "Spiral bud";
+"颗粒料瓶" = "Pellet bottle";
+"锥底料桶" = "Conical hopper";
+"墙角双卷" = "Corner double scroll";
+"圆拱双卷 · 标准卷尖" = "Arch double scroll \u00b7 Standard tips";
+"圆拱双卷 · 短卷尖" = "Arch double scroll \u00b7 Short tips";
+"插管双螺旋" = "Tube-fitting double spiral";

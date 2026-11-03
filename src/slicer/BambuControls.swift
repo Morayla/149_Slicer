@@ -15,11 +15,13 @@ extension Workbench {
                     "W": n * 1.125, "WB": n * 1.125, "H": n / 2, "BH": n / 2, "H0": n / 2, "InnerStartW": n,
                     "TriplePitch": n / 2,
                 ] { self.fields[k] = String(format: "%.4g", v) }
+                self.prepareMaterialLibrary()
                 self.dirty = true
             })
     }
     func selectPrinter(_ next: String) {
         guard next != printerModel, !busy else { return }
+        finishPlacement()
         rememberShape()
         let store = preferences
         store.set(fields, forKey: "149.machine.fields." + printerModel)
@@ -44,7 +46,14 @@ extension Workbench {
             ]
             fields.merge(preset, uniquingKeysWith: { $1 })
         }
+        fields.removeValue(forKey: "ImportFile")
+        fields.removeValue(forKey: "ImportScale")
+        if fields["SourceMode"] == "Imported" { fields["SourceMode"] = "Cylinder" }
         fields["PrinterModel"] = next
+        let placement = preferences.dictionary(forKey: "149.placement.transform." + next) as? [String: Double]
+        restorePlacement(placement ?? ["rotation": preferences.double(forKey: "149.placement.rotation." + next)])
+        prepareMaterialLibrary()
+        loadMaterialAppearance()
         store.set(fields, forKey: "149.machine.fields." + next)
         store.set(next, forKey: "149.lastPrinter")
         preview = nil
@@ -93,33 +102,26 @@ extension Workbench {
 
 struct PrinterSelector: View {
     @ObservedObject var model: Workbench
-
+    @State private var editing = false
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
+            HStack {
                 FabricationIcon()
-                Picker(L("打印机"), selection: model.printerSelection) {
-                    uiText("Ginger G1").tag("G1")
-                    ForEach(["H2D", "P1P", "A1", "A1 mini"], id: \.self) { uiText("Bambu Lab " + $0).tag($0) }
+                uiText("打印机").font(.headline)
+                Spacer()
+                Button {
+                    editing = true
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
                 }
+                .buttonStyle(.borderless).help(L("编辑打印机")).accessibilityLabel(L("编辑打印机"))
             }
-            if model.isBambu {
-                Picker(L("喷嘴直径"), selection: model.nozzleSelection) {
-                    ForEach(["0.4", "0.6", "0.8"], id: \.self) { uiText($0 + " mm").tag($0) }
-                }
-                if model.printerModel == "H2D" {
-                    Picker(L("打印喷嘴"), selection: model.binding("H2DNozzle")) {
-                        uiText("左喷嘴").tag("Left")
-                        uiText("右喷嘴").tag("Right")
-                    }
-                    uiText(
-                        model.fields["H2DNozzle"] == "Right"
-                            ? "右喷嘴范围：X 25–350 · Y 0–320 mm" : "左喷嘴范围：X 0–325 · Y 0–320 mm"
-                    ).interfaceFont(.caption).foregroundColor(.secondary)
-                    uiText("单喷嘴打印 · 直径须与所选喷嘴一致").interfaceFont(.caption).foregroundColor(.secondary)
-                }
-            }
-        }.disabled(model.busy)
+            ParameterPicker(
+                L("打印机"), selection: model.printerSelection,
+                options: [.init("Ginger G1", "G1")]
+                    + ["H2D", "P1P", "A1", "A1 mini"].map { .init("Bambu Lab " + $0, $0) }
+            ).labelsHidden()
+        }.sheet(isPresented: $editing) { PrinterEditor(model: model) }
     }
 }
 
@@ -131,70 +133,24 @@ struct BambuControls: View {
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if model.printerModel == "H2D" {
-                Picker(L("启动方式"), selection: model.binding("H2DStartup")) {
-                    uiText("官方完整启动").tag("Official")
-                    uiText("简化启动（已装料）").tag("Simple")
-                }
-                if model.fields["H2DStartup"] == "Simple" {
-                    uiText("先装好所选喷嘴的耗材。归零、抬升并等待温度后开始；不额外冲刷、动态流量校准或重新调平。").interfaceFont(.caption).foregroundColor(
-                        .secondary)
-                    uiText("喷嘴选择仍由机器执行；未装好料时可能触发换料。结束仍使用官方退料流程。").interfaceFont(.caption).foregroundColor(.secondary)
-                }
-                Divider()
-            }
-            uiText("材料与温度").interfaceFont(.headline)
-            Picker(L("材料类型"), selection: model.binding("FilamentType")) {
-                ForEach(["PLA", "PETG", "TPU"], id: \.self) { uiText($0).tag($0) }
-            }
-            uiText("材料类型用于官方启动流程；温度、流量和风扇请按实际丝材设置。").interfaceFont(.caption).foregroundColor(.secondary)
-            row("喷嘴温度", "NT", "°C")
-            row("热床温度", "BT", "°C")
-            Picker(L("打印板"), selection: model.binding("BuildPlate")) {
-                uiText("纹理 PEI 板").tag("Textured PEI Plate")
-                uiText("光面高温板").tag("High Temp Plate")
-            }
-            Divider()
-            uiText("流量与速度").interfaceFont(.headline)
-            row("流量比例", "FM", "×")
-            row("最大体积流量", "MaxVolumetric", "mm³/s")
-            FilamentFlowAssessment(model: model)
-            row("底部填充速度", "BottomF", "mm/s")
-            row("外墙速度", "WallF", "mm/s")
-            row("空移速度", "BBTravel", "mm/s")
-            row("冷却风扇", "BBFan", "%")
-            uiText("首层关闭风扇，后续使用设定值；超过最大体积流量时自动降低路径速度。").interfaceFont(.caption).foregroundColor(.secondary)
-            Divider()
-            uiText("回抽与抬升").interfaceFont(.headline)
-            row("回抽长度", "BBRetraction")
-            row("回抽速度", "BBRetractionSpeed", "mm/s")
-            row("回抽时抬升 Z", "BBHop")
-            Divider()
-            uiText("平台与收尾").interfaceFont(.headline)
-            row("模型中心 X", "CX")
-            row("模型中心 Y", "CY")
-            Toggle(L("左侧对齐裙边、首层与收尾"), isOn: model.toggle("AlignLeft"))
-            Toggle(L("顶部减流收尾"), isOn: model.toggle("Finish"))
-            if model.toggle("Finish").wrappedValue {
-                row("收尾流量比例", "FinishFlow", "×")
-                if model.fields["SourceMode"] == "NonplanarCylinder" {
-                    uiText("沿完整起伏口沿逐渐减流，不叠加末段二次减流。").interfaceFont(.caption).foregroundColor(.secondary)
-                } else if model.toggle("WaveEnabled").wrappedValue || model.toggle("MeshEnabled").wrappedValue
-                    || ["DoubleScroll", "Crescent"].contains(model.fields["SourceMode"] ?? "")
-                {
-                    row("波形末段收尾长度", "FinishLength")
-                }
-            }
-            Divider()
-            uiText("材料用量").interfaceFont(.headline)
-            row("材料密度", "Density", "g/cm³")
-            row("额外耗料", "ExtraWasteG", "g")
-            ContextHelp("丝材直径 1.75 mm。用量与时间包含 149 路径，不含官方启动排料、预热、调平和 AMS 换料。")
-            Divider()
             Link(
                 L("安装 Bambu Connect"), destination: URL(string: "https://wiki.bambulab.com/en/software/bambu-connect")!
             ).foregroundColor(.primary)
             ContextHelp("首次使用请先在 Bambu Connect 登录并连接机器。发送后在官方窗口确认打印，不重新切片。")
+            if model.printerModel == "H2D" {
+                DisclosureGroup(L("启动流程")) {
+                    ParameterPicker(
+                        L("启动方式"), selection: model.binding("H2DStartup"),
+                        options: [.init("官方完整启动", "Official"), .init("简化启动（已装料）", "Simple")])
+                    if model.fields["H2DStartup"] == "Simple" {
+                        uiText("先装好所选喷嘴的耗材。归零、抬升并等待温度后开始；不额外冲刷、动态流量校准或重新调平。").interfaceFont(.caption).foregroundColor(
+                            .secondary)
+                        uiText("喷嘴选择仍由机器执行；未装好料时可能触发换料。结束仍使用官方退料流程。").interfaceFont(.caption).foregroundColor(
+                            .secondary)
+                    }
+                    Divider()
+                }
+            }
         }
     }
 }
@@ -281,5 +237,16 @@ struct FilamentFlowAssessment: View {
                 uiText("输入有效的线宽、层高、速度和流量比例后显示估算。").interfaceFont(.caption).foregroundColor(.secondary)
             }
         }.padding(10).background(.white.opacity(0.035), in: RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+extension Workbench {
+    var printerBedSize: [Double] {
+        switch printerModel {
+        case "H2D": return [350, 320, 325]
+        case "P1P", "A1": return [256, 256, 256]
+        case "A1 mini": return [180, 180, 180]
+        default: return [1000, 1000, 1000]
+        }
     }
 }

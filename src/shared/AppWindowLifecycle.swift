@@ -3,6 +3,10 @@ import SwiftUI
 
 @MainActor
 class MainWindowAppDelegate: NSObject, NSApplicationDelegate {
+    override init() {
+        super.init()
+        NSWindow.allowsAutomaticWindowTabbing = false
+    }
     let mainWindows = NSHashTable<NSWindow>.weakObjects()
     var openMainWindow: (() -> Void)?
 
@@ -40,7 +44,7 @@ private struct MainWindowRegistration: NSViewRepresentable {
         weak var delegate: MainWindowAppDelegate?
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
-            if let window { delegate?.mainWindows.add(window) }
+            if let window { window.tabbingMode = .disallowed; delegate?.mainWindows.add(window) }
         }
     }
 
@@ -73,9 +77,16 @@ struct MenuSettings<Content: View>: Scene {
 
 private struct NonRestoringSettingsWindow: NSViewRepresentable {
     final class SettingsView: NSView {
+        private var titleObservation: NSKeyValueObservation?
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
-            window?.isRestorable = false
+            titleObservation = nil
+            guard let window else { return }
+            window.isRestorable = false
+            window.title = L("设置")
+            titleObservation = window.observe(\.title, options: [.new]) { window, _ in
+                if window.title != L("设置") { window.title = L("设置") }
+            }
         }
     }
     func makeNSView(context: Context) -> SettingsView { SettingsView() }

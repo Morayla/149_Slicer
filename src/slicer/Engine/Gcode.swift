@@ -35,7 +35,6 @@ enum SliceGcode {
             command: String
         var deposits: Bool { (extrusion ?? 0) > 0 && distance > 1e-8 }
     }
-    static let words = try! NSRegularExpression(pattern: #"\b([XYZFE])([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)"#)
     private static let sectionPattern = try! NSRegularExpression(
         pattern: #"^;\s*=+\s*(SKIRT|BRIM|BOTTOM|WALL|PATH|TRAVEL)\b"#)
     static func lines(_ text: String) -> [String] {
@@ -100,6 +99,12 @@ enum SliceGcode {
             }
             if let value = Double(String(decoding: bytes[start..<end], as: UTF8.self)) { accept(axis, value) }
             i = end
+        }
+    }
+    static func readWords(_ line: String, _ accept: (UInt8, Double) -> Void) {
+        var input = line
+        input.withUTF8 { bytes in
+            scanWords(bytes, from: 0, to: bytes.firstIndex(of: 59) ?? bytes.count, accept)
         }
     }
     static func command(_ line: String) -> String {

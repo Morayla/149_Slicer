@@ -1,0 +1,1268 @@
+{
+  "version": 1,
+  "modules": [
+    {
+      "id": "Cylinder",
+      "title": "圆柱",
+      "defaults": {
+        "Dout": "200",
+        "CH": "150",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0"
+      }
+    },
+    {
+      "id": "Ellipse",
+      "title": "椭圆柱",
+      "defaults": {
+        "EllipseMajor": "200.0",
+        "EllipseMinor": "120.0",
+        "EllipseHeight": "150.0",
+        "EllipseRotation": "0.0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0"
+      }
+    },
+    {
+      "id": "Cone",
+      "title": "圆台",
+      "defaults": {
+        "ConeBottomD": "200.0",
+        "ConeTopD": "100.0",
+        "ConeHeight": "150.0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0"
+      }
+    },
+    {
+      "id": "NonplanarCylinder",
+      "title": "起伏口沿圆柱",
+      "defaults": {
+        "Dout": "200",
+        "CH": "150",
+        "NPDepth": "15.0",
+        "NPStart": "40.0",
+        "NPDirection": "90.0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0"
+      }
+    },
+    {
+      "id": "Crescent",
+      "title": "弯月",
+      "defaults": {
+        "CrescentD": "300.0",
+        "CrescentHeight": "180.0",
+        "CrescentThickness": "60.0",
+        "CrescentGap": "10.0",
+        "CrescentRotation": "0.0",
+        "CrescentBulbD": "60.0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0"
+      }
+    },
+    {
+      "id": "SingleBud",
+      "title": "螺旋花蕾",
+      "defaults": {
+        "BudD": "240.0",
+        "BudHeight": "600.0",
+        "BudTurns": "1.0",
+        "BudCoreD": "40.0",
+        "BudLaneGap": "4.0",
+        "BudCurl": "130.0",
+        "BudStart": "40.0",
+        "BudEnd": "560.0",
+        "BudRot": "25.0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0"
+      }
+    },
+    {
+      "id": "DoubleScroll",
+      "title": "双螺旋体",
+      "defaults": {
+        "DoubleD": "180.0",
+        "DoubleTurns": "1.5",
+        "DoubleGap": "50.0",
+        "DoubleHeight": "350.0",
+        "DoubleRot": "0.0",
+        "DoubleLines": "1",
+        "DoubleLaneGap": "9.0",
+        "DoubleProfile": "0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0"
+      }
+    },
+    {
+      "id": "Triple",
+      "title": "三螺旋体",
+      "defaults": {
+        "TripleD": "400.0",
+        "TripleTurns": "3.0",
+        "TriplePts": "250",
+        "TripleRot": "0.0",
+        "TripleHeight": "20.0",
+        "TriplePitch": "1.0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0"
+      }
+    },
+    {
+      "id": "TripleVase",
+      "title": "三螺旋花瓶",
+      "defaults": {
+        "TripleD": "400.0",
+        "TripleRot": "0.0",
+        "VaseD": "500.0",
+        "VaseHeight": "120.0",
+        "VaseStart": "30.0",
+        "VaseCoreDiameter": "40.0",
+        "VaseBaseLayers": "3",
+        "VaseTurns": "3.0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0"
+      }
+    },
+    {
+      "id": "PelletBottle",
+      "title": "颗粒料瓶",
+      "defaults": {
+        "BottleDiameter": "220",
+        "BottleBody": "260",
+        "BottleShoulder": "130",
+        "BottleNeck": "50",
+        "BottleBore": "50",
+        "HasBottom": "1",
+        "BottomKind": "Solid",
+        "BottomPattern": "Zigzag",
+        "B": "2",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0",
+        "W": "8",
+        "WB": "8",
+        "H": "3.5",
+        "H0": "3.5",
+        "BH": "3.5",
+        "EFEnabled": "0",
+        "AlignLeft": "1"
+      }
+    },
+    {
+      "id": "Hopper",
+      "title": "锥底料桶",
+      "defaults": {
+        "HopperHeight": "800",
+        "HopperDensityMode": "0",
+        "HopperPackingPercent": "60",
+        "HopperFillPercent": "90",
+        "HopperBulkDensity": "0",
+        "HasBottom": "0",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "288",
+        "EdgeCalibrationEnabled": "0",
+        "W": "8",
+        "WB": "8",
+        "H": "3.5",
+        "H0": "3.5",
+        "BH": "3.5",
+        "AlignLeft": "1"
+      }
+    },
+    {
+      "id": "Wardrobe",
+      "title": "螺旋挂衣体",
+      "defaults": {
+        "WardEFEnabled": "0",
+        "WardEF": "0.2",
+        "WardPart": "0",
+        "WardHeight": "1800.0",
+        "WardBeam": "170.0",
+        "WardRadius": "200.0",
+        "WardOpening": "680.0",
+        "WardCount": "8",
+        "WardPitch": "50.0",
+        "WardEndSpace": "40.0",
+        "WardPipeD": "21.3",
+        "WardClearance": "1.0",
+        "WardLaneGap": "0.8",
+        "WardLayout": "0",
+        "WardRailHeight": "40",
+        "WardHemGap": "100",
+        "WardLowerHeight": "730",
+        "WardTopRadius": "100",
+        "WardCurlReduction": "0",
+        "WardCoreMode": "0",
+        "WardCoreBore": "30",
+        "WardLayerMode": "0",
+        "WardBedTest": "0",
+        "WardTestLayers": "2",
+        "WardTestContinuous": "0",
+        "WardEFMeasured": "0",
+        "WardEFGrouped": "0",
+        "WardPostEFLayer1": "0.71",
+        "WardPostEFLayer2": "0.0",
+        "WardPostEFLayer3": "0.69",
+        "WardPostEFLayer4": "0.65",
+        "WardPostEFLayer5": "0.53",
+        "WardPostEFLayer6": "0.31",
+        "WardPostEFLayer7": "0.21",
+        "WardPostEFLayer8": "0.21",
+        "WardPostEFLayer9": "0.15",
+        "WardEFLayer1": "1.07",
+        "WardEFLayer2": "0.0",
+        "WardEFLayer3": "0.6",
+        "WardEFLayer4": "0.6",
+        "WardEFLayer5": "0.22",
+        "WardEFLayer6": "0.17",
+        "WardEFLayer7": "0.17",
+        "WardTipClearance": "0.0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0",
+        "H": "3.5",
+        "H0": "2.5"
+      }
+    },
+    {
+      "id": "CornerPipe",
+      "title": "墙角双卷",
+      "defaults": {
+        "CornerSide": "122.0",
+        "CornerHeight": "500.0",
+        "CornerPipeD": "21.3",
+        "CornerClearance": "1.0",
+        "CornerLaneGap": "1.0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0"
+      }
+    },
+    {
+      "id": "EggScroll",
+      "title": "蛋形海螺双卷",
+      "defaults": {
+        "EggHeight": "650.0",
+        "HasBottom": "1",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0",
+        "W": "6",
+        "H": "3",
+        "H0": "2.5"
+      }
+    },
+    {
+      "id": "Fern1060",
+      "title": "圆拱双卷 · 标准卷尖",
+      "defaults": {
+        "FernDepth": "500.5",
+        "HasBottom": "0",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0",
+        "W": "8",
+        "H": "3.5",
+        "H0": "3.5",
+        "EFEnabled": "0"
+      }
+    },
+    {
+      "id": "Fern1060E",
+      "title": "圆拱双卷 · 短卷尖",
+      "defaults": {
+        "FernDepth": "500.5",
+        "HasBottom": "0",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0",
+        "W": "8",
+        "H": "3.5",
+        "H0": "3.5",
+        "EFEnabled": "0"
+      }
+    },
+    {
+      "id": "PipeScroll",
+      "title": "插管双螺旋",
+      "defaults": {
+        "PipeScrollHeight": "250",
+        "PipeScrollRot": "0",
+        "PipeScrollSpacing": "167.96",
+        "PipeScrollProfile": "2",
+        "HasBottom": "0",
+        "BottomKind": "Annular",
+        "BottomPattern": "Spiral",
+        "B": "1",
+        "N": "0.0",
+        "EdgeCalibrationEnabled": "0",
+        "W": "8",
+        "H": "3",
+        "H0": "2.5",
+        "EFEnabled": "0"
+      }
+    }
+  ],
+  "parameters": {
+    "NoiseStrength": {
+      "label": "纹理强度",
+      "unit": "×",
+      "integer": false,
+      "step": 0.01,
+      "minimum": 0,
+      "maximum": 100
+    },
+    "NoiseAmplitude": {
+      "label": "起伏幅度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 100
+    },
+    "NoiseScale": {
+      "label": "波纹尺度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.01,
+      "maximum": 10000
+    },
+    "NoiseVariation": {
+      "label": "层间变化",
+      "unit": "%",
+      "integer": false,
+      "step": 1,
+      "minimum": 0,
+      "maximum": 100
+    },
+    "NoiseZAmplitude": {
+      "label": "垂直起伏幅度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "MeshCount": {
+      "label": "每圈波数",
+      "unit": "个",
+      "integer": true,
+      "step": 1
+    },
+    "MeshOpening": {
+      "label": "网孔高度上限",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "MeshStrand": {
+      "label": "料线厚度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "MeshContactPress": {
+      "label": "接点压合量",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "MeshContactLength": {
+      "label": "接点搭接长度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "MeshSpeed": {
+      "label": "网孔速度上限",
+      "unit": "mm/s",
+      "integer": false,
+      "step": 0.1
+    },
+    "WaveAmp": {
+      "label": "波峰向外凸",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "WaveNegAmp": {
+      "label": "波谷向内凹",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "WaveCount": {
+      "label": "每遍波数",
+      "unit": "个",
+      "integer": true,
+      "step": 1
+    },
+    "WaveStartLayer": {
+      "label": "前几遍保持原形",
+      "unit": "遍",
+      "integer": false,
+      "step": 0.1
+    },
+    "BottleDiameter": {
+      "label": "瓶身外径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BottleBody": {
+      "label": "瓶身高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BottleShoulder": {
+      "label": "肩部高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BottleNeck": {
+      "label": "瓶口高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BottleBore": {
+      "label": "瓶口内径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "FernDepth": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 200,
+      "maximum": 500.5
+    },
+    "TravelTestSpan": {
+      "label": "跨孔距离",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 80,
+      "maximum": 700
+    },
+    "TravelTestRounds": {
+      "label": "往返轮数",
+      "unit": "轮",
+      "integer": true,
+      "step": 1,
+      "minimum": 3,
+      "maximum": 40
+    },
+    "WardHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 1000,
+      "maximum": 1900
+    },
+    "WardOpening": {
+      "label": "开孔展开宽度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "WardLaneGap": {
+      "label": "墙间净距",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.5,
+      "maximum": 4
+    },
+    "WardBeam": {
+      "label": "上下梁等高",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "WardLowerHeight": {
+      "label": "下段高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "WardTopRadius": {
+      "label": "顶部开孔圆角",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "WardRadius": {
+      "label": "底部开孔圆角",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "WardRailHeight": {
+      "label": "挂衣矮梁高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "WardHemGap": {
+      "label": "衣摆距底梁",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "WardCoreBore": {
+      "label": "卷芯最小净空",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "WardCurlReduction": {
+      "label": "减卷角度",
+      "unit": "°",
+      "integer": false,
+      "step": 1,
+      "minimum": 0,
+      "maximum": 90
+    },
+    "WardPipeD": {
+      "label": "连接柱外径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 5,
+      "maximum": 35
+    },
+    "WardClearance": {
+      "label": "孔径余量",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.2,
+      "maximum": 3
+    },
+    "WardCount": {
+      "label": "挂衣数量",
+      "unit": "件",
+      "integer": true,
+      "step": 1,
+      "minimum": 1,
+      "maximum": 20
+    },
+    "WardPitch": {
+      "label": "每件挂放间距",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 20,
+      "maximum": 100
+    },
+    "WardEndSpace": {
+      "label": "两端挂放余量",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "EggHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 50,
+      "maximum": 950
+    },
+    "CornerSide": {
+      "label": "墙角占位边长",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 60,
+      "maximum": 500
+    },
+    "CornerHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "CornerPipeD": {
+      "label": "连接管外径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 1,
+      "maximum": 100
+    },
+    "CornerClearance": {
+      "label": "孔径余量",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 5
+    },
+    "CornerLaneGap": {
+      "label": "墙间净距",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.5,
+      "maximum": 10
+    },
+    "BudD": {
+      "label": "参考外径（含料道）",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BudHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BudTurns": {
+      "label": "基准螺旋圈数",
+      "unit": "圈",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.75,
+      "maximum": 3
+    },
+    "BudCoreD": {
+      "label": "中心净空直径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BudLaneGap": {
+      "label": "墙间净距",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BudCurl": {
+      "label": "卷边收拢角",
+      "unit": "°",
+      "integer": false,
+      "step": 1,
+      "minimum": 0,
+      "maximum": 180
+    },
+    "BudStart": {
+      "label": "收拢开始高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BudEnd": {
+      "label": "收拢结束高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "PipeScrollHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.01,
+      "maximum": 1000
+    },
+    "PipeScrollSpacing": {
+      "label": "两卷芯中心距",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "DoubleLaneGap": {
+      "label": "墙间净距",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "DoubleTurns": {
+      "label": "每侧螺旋圈数",
+      "unit": "圈",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 1,
+      "maximum": 4
+    },
+    "VaseD": {
+      "label": "路径外接直径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "VaseHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "VaseTurns": {
+      "label": "每瓣螺旋圈数",
+      "unit": "圈",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 1,
+      "maximum": 6
+    },
+    "VaseCoreDiameter": {
+      "label": "最小空腔直径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "TripleD": {
+      "label": "路径外接直径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "TripleTurns": {
+      "label": "长螺旋圈数",
+      "unit": "圈",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.334,
+      "maximum": 20
+    },
+    "TripleHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "CrescentD": {
+      "label": "外径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "CrescentHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "CrescentThickness": {
+      "label": "截面厚度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "CrescentGap": {
+      "label": "开口净宽",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "CrescentRotation": {
+      "label": "开口方向",
+      "unit": "°",
+      "integer": false,
+      "step": 1,
+      "minimum": -360,
+      "maximum": 360
+    },
+    "CrescentBulbD": {
+      "label": "灯泡参考直径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "EllipseMajor": {
+      "label": "长轴外径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "EllipseMinor": {
+      "label": "短轴外径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "EllipseHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "ConeBottomD": {
+      "label": "下口外径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "ConeTopD": {
+      "label": "上口外径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "ConeHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "Dout": {
+      "label": "外径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "CH": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "NPDepth": {
+      "label": "口沿下凹深度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "NPStart": {
+      "label": "起伏开始高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "NPDirection": {
+      "label": "下凹方向",
+      "unit": "°",
+      "integer": false,
+      "step": 1,
+      "minimum": -360,
+      "maximum": 360
+    },
+    "TriplePts": {
+      "label": "每圈采样数",
+      "unit": "点",
+      "integer": true,
+      "step": 1,
+      "minimum": 50,
+      "maximum": 1000
+    },
+    "EF": {
+      "label": "单侧收窄量",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 100
+    },
+    "EFLayers": {
+      "label": "过渡层数",
+      "unit": "层",
+      "integer": true,
+      "step": 1,
+      "minimum": 1,
+      "maximum": 200
+    },
+    "Din": {
+      "label": "孔径",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "B": {
+      "label": "层数",
+      "unit": "层",
+      "integer": true,
+      "step": 1,
+      "minimum": 1,
+      "maximum": 20
+    },
+    "BH": {
+      "label": "层高",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.01,
+      "maximum": 1000
+    },
+    "WB": {
+      "label": "线宽",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.01,
+      "maximum": 1000
+    },
+    "H0": {
+      "label": "首层层高",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.01,
+      "maximum": 1000
+    },
+    "F0": {
+      "label": "首层流量比例",
+      "unit": "×",
+      "integer": false,
+      "step": 0.01
+    },
+    "EdgeBulgeIn": {
+      "label": "外凸处最大内收",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "EdgeDipOut": {
+      "label": "内缩处最大外补",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "Density": {
+      "label": "材料密度",
+      "unit": "g/cm³",
+      "integer": false,
+      "step": 0.1
+    },
+    "ExtraWasteG": {
+      "label": "额外耗料",
+      "unit": "g",
+      "integer": false,
+      "step": 0.1
+    },
+    "NT": {
+      "label": "喷嘴温度",
+      "unit": "°C",
+      "integer": false,
+      "step": 1
+    },
+    "BT": {
+      "label": "热床温度",
+      "unit": "°C",
+      "integer": false,
+      "step": 1
+    },
+    "FM": {
+      "label": "流量比例",
+      "unit": "×",
+      "integer": false,
+      "step": 0.01
+    },
+    "MaxVolumetric": {
+      "label": "最大体积流量",
+      "unit": "mm³/s",
+      "integer": false,
+      "step": 0.1
+    },
+    "BottomF": {
+      "label": "底部填充速度",
+      "unit": "mm/s",
+      "integer": false,
+      "step": 0.1
+    },
+    "WallF": {
+      "label": "外墙速度",
+      "unit": "mm/s",
+      "integer": false,
+      "step": 0.1
+    },
+    "BBTravel": {
+      "label": "空移速度",
+      "unit": "mm/s",
+      "integer": false,
+      "step": 0.1
+    },
+    "BBFan": {
+      "label": "冷却风扇",
+      "unit": "%",
+      "integer": false,
+      "step": 1
+    },
+    "CX": {
+      "label": "模型中心 X",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "CY": {
+      "label": "模型中心 Y",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "FinishFlow": {
+      "label": "收尾流量比例",
+      "unit": "×",
+      "integer": false,
+      "step": 0.01
+    },
+    "FinishLength": {
+      "label": "波形末段收尾长度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BBRetraction": {
+      "label": "回抽长度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "BBRetractionSpeed": {
+      "label": "回抽速度",
+      "unit": "mm/s",
+      "integer": false,
+      "step": 0.1
+    },
+    "BBHop": {
+      "label": "回抽时抬升 Z",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "H": {
+      "label": "层高",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.01,
+      "maximum": 1000
+    },
+    "W": {
+      "label": "线宽",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.01,
+      "maximum": 1000
+    },
+    "HopperHeight": {
+      "label": "高度",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 220,
+      "maximum": 990
+    },
+    "HopperFillPercent": {
+      "label": "装填比例",
+      "unit": "%",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.1,
+      "maximum": 100
+    },
+    "HopperPackingPercent": {
+      "label": "堆积比例",
+      "unit": "%",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.1,
+      "maximum": 100
+    },
+    "HopperBulkDensity": {
+      "label": "实测堆积密度",
+      "unit": "kg/L",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0,
+      "maximum": 30
+    },
+    "NoiseSeed": {
+      "label": "随机种子",
+      "unit": "",
+      "integer": true,
+      "step": 1,
+      "minimum": 0,
+      "maximum": 2147483647
+    },
+    "N": {
+      "label": "每圈采样数",
+      "unit": "点",
+      "integer": true,
+      "step": 1,
+      "minimum": 0,
+      "maximum": 2000
+    },
+    "Tolerance": {
+      "label": "轮廓误差",
+      "unit": "mm",
+      "integer": false,
+      "step": 0.1,
+      "minimum": 0.02,
+      "maximum": 1
+    }
+  }
+}

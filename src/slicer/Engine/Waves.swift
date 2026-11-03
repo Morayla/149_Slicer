@@ -7,7 +7,6 @@ extension SliceGeometry {
         guard let cfg = try waveSettings(raw, mode: mode) else { return model }
         let blocked = [
             "DoubleScroll": "双螺旋使用逐层往返走线", "TripleVase": "三螺旋花瓶已配套扩容走线", "NonplanarCylinder": "起伏口沿已配套非平面走线",
-            "Imported": "导入模型暂不支持三角波",
         ]
         if let reason = blocked[mode] { throw SliceFailure(reason + "，请关闭三角波后切片。") }
         let wall = model.wall

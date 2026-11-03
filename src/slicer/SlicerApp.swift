@@ -7,7 +7,9 @@ import UniformTypeIdentifiers
 #if !TESTING
     @main
     struct SlicerApp: App {
-        @NSApplicationDelegateAdaptor(MainWindowAppDelegate.self) private var delegate
+        @NSApplicationDelegateAdaptor(SlicerAppDelegate.self) private var delegate
+
+        @StateObject private var model = Workbench()
 
         init() {
             UserDefaults.standard.removeObject(forKey: "AppleAccentColor")
@@ -20,8 +22,9 @@ import UniformTypeIdentifiers
             }
         }
         var body: some Scene {
-            WindowGroup("149 Slicer", id: "slicer") {
-                MainWindowContent(id: "slicer", delegate: delegate) { ContentView() }
+            Window("149 Slicer", id: "slicer") {
+                MainWindowContent(id: "slicer", delegate: delegate) { ContentView(viewModel: model) }
+                    .onAppear { delegate.receiveProject = { [weak model = model] url in model?.openProject(at: url) } }
             }.windowStyle(.titleBar).commands {
                 ProjectCommands()
                 WorkspaceCommands()

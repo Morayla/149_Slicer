@@ -14,7 +14,7 @@ struct NativeSliceProject {
         func group(_ name: String) throws -> SliceParameters {
             let initial = defaults[name] as! [String: Any]
             guard raw[name] == nil || raw[name] is [String: Any] else { throw SliceFailure(name + " 必须为参数对象。") }
-            let values = raw[name] as? [String: Any] ?? [:]
+            let values = (raw[name] as? [String: Any] ?? [:]).filter { name != "shape" || !["ImportFile", "ImportScale"].contains($0.key) }
             let unknown = Set(values.keys).subtracting(initial.keys)
             guard unknown.isEmpty else { throw SliceFailure("本版不支持参数：" + unknown.sorted().joined(separator: ", ")) }
             var result = initial.merging(values) { _, new in new }

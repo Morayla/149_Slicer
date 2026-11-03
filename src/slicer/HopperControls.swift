@@ -42,13 +42,7 @@ struct HopperControls: View {
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            NumberRow(model: model, label: "料桶总高", key: "HopperHeight", unit: "mm")
-            HStack {
-                Button("−0.1 mm") { adjust(-0.1) }
-                Button("+0.1 mm") { adjust(0.1) }
-                Spacer()
-                Button(L("恢复 800 mm")) { model.binding("HopperHeight").wrappedValue = "800" }
-            }
+            NumberRow(model: model, label: "高度", key: "HopperHeight", unit: "mm")
             ContextHelp("仅上方直筒随总高改变。外径 Ø210、下端锥体 160 mm 和嘴部 34.7 mm 固定。")
             if let litres = volume {
                 uiText(String(format: L("直筒 %.2f mm + 固定下端 194.70 mm"), value("HopperHeight") - 194.7)).interfaceFont(
@@ -58,10 +52,9 @@ struct HopperControls: View {
                 uiText(String(format: L("内径 Ø%.2f mm · 按当前线宽 %.2f mm 内缩计算"), 210 - 2 * value("W"), value("W")))
                     .interfaceFont(.caption).foregroundColor(.secondary)
                 NumberRow(model: model, label: "装满比例", key: "HopperFillPercent", unit: "%")
-                Picker(L("装料重量依据"), selection: model.binding("HopperDensityMode")) {
-                    uiText("本体密度 × 颗粒占比（估算）").tag("0")
-                    uiText("实测堆积密度").tag("1")
-                }
+                ParameterPicker(
+                    L("装料重量依据"), selection: model.binding("HopperDensityMode"),
+                    options: [.init("本体密度 × 颗粒占比（估算）", "0"), .init("实测堆积密度", "1")])
                 if measured {
                     NumberRow(model: model, label: "实测堆积密度", key: "HopperBulkDensity", unit: "kg/L")
                     uiText("量取 1 L 颗粒，净重多少 kg 就填多少。使用装入桶内的物料密度。").interfaceFont(.caption).foregroundColor(.secondary)
@@ -89,9 +82,5 @@ struct HopperControls: View {
             uiText("大口朝平台，连续螺旋向上打印；上下贯通，不含盖和封底。装料重量不等于下方的打印用料重量。").interfaceFont(.caption).foregroundColor(.secondary)
         }
     }
-    private func adjust(_ delta: Double) {
-        let h = value("HopperHeight")
-        guard h.isFinite else { return }
-        model.binding("HopperHeight").wrappedValue = String(format: "%.2f", min(990, max(220, h + delta)))
-    }
+
 }

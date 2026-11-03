@@ -2,7 +2,7 @@ import Foundation
 
 extension SliceGeometry {
     static func makeShape(
-        _ values: SliceParameters, resources: URL, stepHelper: URL? = nil, wardrobeReference: WardrobeReference? = nil
+        _ values: SliceParameters, resources: URL, wardrobeReference: WardrobeReference? = nil
     ) throws -> SliceShape {
         var p = values
         let mode = p.text("SourceMode", fallback: "Cylinder")
@@ -85,7 +85,7 @@ extension SliceGeometry {
         case "Triple":
             p.set(["CH": p["TripleHeight"], "H": p["TriplePitch"], "HasBottom": 0, "EF": 0, "EFTable": ""])
             return try tripleModel(validate(p))
-        default: return try circularModel(p, stepHelper: stepHelper)
+        default: return try circularModel(p)
         }
     }
     static func lowerBound(_ values: [Double], _ value: Double) -> Int {

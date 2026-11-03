@@ -155,13 +155,13 @@ extension SliceGeometry {
         var p = input
         if p.values.keys.contains(where: { $0.hasPrefix("Outer") }) { throw SliceFailure("本版本不支持首层外缘局部尺寸校准参数。") }
         let modes = [
-            "Cylinder", "Ellipse", "Cone", "Triple", "TripleVase", "DoubleScroll", "Imported", "NonplanarCylinder",
+            "Cylinder", "Ellipse", "Cone", "Triple", "TripleVase", "DoubleScroll", "NonplanarCylinder",
             "Crescent", "SingleBud", "CornerPipe", "EggScroll", "Wardrobe", "TravelTest", "Fern1060", "Fern1060E",
             "PipeScroll", "PelletBottle", "Hopper",
         ]
         guard modes.contains(p.text("SourceMode")) else { throw SliceFailure("不支持的造型类型。") }
         let textFields: Set<String> = [
-            "SourceMode", "EFTable", "BottomKind", "BottomPattern", "FillAngles", "ImportFile",
+            "SourceMode", "EFTable", "BottomKind", "BottomPattern", "FillAngles",
         ]
         for (key, value) in p.values where !textFields.contains(key) {
             guard let number = (value as? NSNumber)?.doubleValue ?? Double(value as? String ?? ""), number.isFinite

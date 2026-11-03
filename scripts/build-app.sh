@@ -1,27 +1,22 @@
 #!/bin/bash
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
-output="${1:-$root/dist/149.app}"
+output="${1:-$root/dist/149 Slicer.app}"
 case "$output" in /*) ;; *) output="$PWD/$output" ;; esac
 [[ "$output" == *.app ]] || { echo 'Output must end in .app' >&2; exit 2; }
 [[ ! -e "$output" ]] || { echo 'Choose a new output path; existing applications are not overwritten.' >&2; exit 2; }
 if [[ -z "${DEVELOPER_DIR:-}" && -d /Applications/Xcode.app/Contents/Developer ]]; then
   export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 fi
-[[ -x "$root/vendor/cad/bin/149-step" ]] || { echo 'Native STEP helper is missing. Run scripts/build-cad.sh.' >&2; exit 2; }
 build=$(mktemp -d "${TMPDIR:-/tmp}/149-build.XXXXXX")
 trap 'rm -rf "$build"' EXIT
-app="$build/149.app"
-mkdir -p "$app/Contents/MacOS" "$app/Contents/Frameworks" "$app/Contents/Helpers" "$app/Contents/Resources/CAD-Licenses"
+app="$build/149 Slicer.app"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp "$root/resources/Info.plist" "$app/Contents/Info.plist"
 for resource in 149.icns Logo149VectorWhite.pdf G1PreviewConfig.txt definitions; do
   ditto "$root/resources/$resource" "$app/Contents/Resources/$resource"
 done
 if [[ -d "$root/resources/en.lproj" ]]; then ditto "$root/resources/en.lproj" "$app/Contents/Resources/en.lproj"; fi
-cp "$root/vendor/cad/bin/149-step" "$app/Contents/Helpers/149-step"
-cp "$root/vendor/cad/lib/"*.dylib "$app/Contents/Frameworks/"
-ditto "$root/vendor/cad/licenses" "$app/Contents/Resources/CAD-Licenses"
-cp "$root/vendor/cad/provenance.json" "$app/Contents/Resources/CAD-Licenses/provenance.json"
 mkdir -p "$build/native"
 while IFS= read -r -d '' source; do
   relative="${source#"$root/src/"}"
@@ -35,8 +30,6 @@ while IFS= read -r -d '' source; do sources+=("$source"); done < <(find "$build/
   -framework SwiftUI -framework AppKit -framework SceneKit -framework WebKit \
   "${sources[@]}" -o "$app/Contents/MacOS/149"
 /usr/bin/xattr -cr "$app"
-for library in "$app/Contents/Frameworks/"*.dylib; do /usr/bin/codesign --force --sign - "$library"; done
-/usr/bin/codesign --force --sign - "$app/Contents/Helpers/149-step"
 /usr/bin/codesign --force --deep --sign - "$app"
 /usr/bin/codesign --verify --deep --strict "$app"
 mkdir -p "$(dirname "$output")"

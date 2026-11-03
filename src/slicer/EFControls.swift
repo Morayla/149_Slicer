@@ -23,9 +23,11 @@ struct WardrobeEFControls: View {
                     Toggle(L("按梁与柱段分别补偿"), isOn: model.toggle("WardEFGrouped"))
                 }
                 uiText(grouped ? (post ? "当前补偿组：②③④⑤柱段" : "当前补偿组：①底梁、⑥顶梁") : "当前补偿组：所有分件共用").interfaceFont(.subheadline)
-                ForEach(1...layerCount, id: \.self) { layer in
-                    NumberRow(
-                        model: model, label: LF("第 %@ 层内缩", String(layer)), key: "\(layerKey)\(layer)", unit: "mm")
+                DisclosureGroup(L("逐层修正")) {
+                    ForEach(1...layerCount, id: \.self) { layer in
+                        NumberRow(
+                            model: model, label: LF("第 %@ 层内缩", String(layer)), key: "\(layerKey)\(layer)", unit: "mm")
+                    }
                 }
                 ContextHelp("每个分件从自己的打印首层计数，上段倒置时也一样；第\(layerCount+1)层起补偿为0。数值为各层目标，连续升Z时层间平滑过渡；第2层可独立设为0。与首层轮廓内缩不叠加。")
                 if grouped {
@@ -105,7 +107,7 @@ struct EFPresetControls: View {
                 Divider()
                 Button(L("删除预设…"), role: .destructive) { deleting = true }.disabled(selected.isEmpty)
             }
-            Picker(
+            ParameterPicker(
                 L("预设"),
                 selection: Binding(
                     get: { selected },
@@ -115,11 +117,8 @@ struct EFPresetControls: View {
                         model.applyEFPreset(p)
                         name = p.name
                         notice = ""
-                    })
-            ) {
-                uiText("选择已保存的预设").tag("")
-                ForEach(store.presets) { Text(verbatim: $0.name).tag($0.id) }
-            }.labelsHidden().accessibilityLabel(L("象脚补偿预设"))
+                    }), options: [.init("选择预设", "")] + store.presets.map { .init($0.name, $0.id, localize: false) }
+            ).labelsHidden().accessibilityLabel(L("象脚补偿预设"))
             if let p = store.presets.first(where: { $0.id == selected }),
                 p.fields.contains(where: { model.fields[$0.key] != $0.value })
             {
@@ -216,12 +215,12 @@ struct CompensationControls: View {
                 EFPresetControls(model: model)
                 Toggle(L("启用象脚补偿"), isOn: model.toggle("EFEnabled"))
                 if model.fields["SourceMode"] == "DoubleScroll" {
-                    ContextHelp("沿闭合轮廓向内补偿，首层保持等高，之后按圈恢复原尺寸。内缩量须小于双线净间隙的一半；裙边与顶部整平规律保留。")
+                    ContextHelp("沿闭合轮廓向内补偿；内缩量须小于双线净隙的一半。")
                 }
                 VStack(alignment: .leading, spacing: 10) {
                     row("最大内缩量", "EF")
                     row("过渡范围", "EFLayers", "圈")
-                    ContextHelp("底部按设定值内缩，随后逐渐减弱。关闭开关会保留参数与校准数据。")
+                    ContextHelp("内缩量在过渡范围内逐渐减为零；关闭补偿保留数据。")
                     DisclosureGroup(L("自定义补偿曲线")) {
                         uiText("保留校准生成的数据；只有需要单独修正时才编辑。").font(.caption).foregroundStyle(.secondary)
                         TextEditor(text: model.binding("EFTable")).font(.system(.body, design: .monospaced)).frame(

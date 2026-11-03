@@ -47,7 +47,8 @@ final class G1Exporter {
         }
         for line in G.lines(text) {
             let code = G.command(line)
-            guard let cmd = code.split(whereSeparator: { $0.isWhitespace }).first else { continue }
+            let cmd = code.prefix { !$0.isWhitespace }
+            if cmd.isEmpty { continue }
             guard ["G0", "G00", "G1", "G01", "G90", "G21", "M83", "G92"].contains(String(cmd)) else {
                 throw SliceFailure("Unsupported model-body command " + cmd)
             }

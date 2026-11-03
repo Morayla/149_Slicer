@@ -18,9 +18,14 @@ enum NativeSliceProcess {
         process.standardError = handle
         try process.run()
         let timer = DispatchSource.makeTimerSource(queue: .global(qos: .utility))
-        timer.schedule(deadline: .now() + timeout)
+        let computation = SliceComputation.current
+        let deadline = ProcessInfo.processInfo.systemUptime + timeout
+        timer.schedule(deadline: .now() + 0.1, repeating: 0.1)
         timer.setEventHandler {
-            if process.isRunning {
+            if process.isRunning
+                && (computation?.isCancelled == true || ProcessInfo.processInfo.systemUptime >= deadline)
+            {
+                timer.cancel()
                 process.terminate()
                 DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 2) {
                     if process.isRunning { kill(process.processIdentifier, SIGKILL) }
@@ -30,6 +35,7 @@ enum NativeSliceProcess {
         timer.resume()
         process.waitUntilExit()
         timer.cancel()
+        try computation?.check()
         let input = try FileHandle(forReadingFrom: log)
         defer { try? input.close() }
         let size = try input.seekToEnd()

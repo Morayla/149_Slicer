@@ -29,10 +29,11 @@ extension SliceGcode {
         return text
     }
     static func scalar(_ line: String, _ axis: String) -> Double? {
-        let code = command(line)
-        let ns = code as NSString
-        for hit in words.matches(in: code, range: NSRange(location: 0, length: ns.length))
-        where ns.substring(with: hit.range(at: 1)) == axis { return Double(ns.substring(with: hit.range(at: 2))) }
-        return nil
+        let letter = axis.utf8.first!
+        var result: Double?
+        readWords(line) { key, value in
+            if key == letter && result == nil { result = value }
+        }
+        return result
     }
 }

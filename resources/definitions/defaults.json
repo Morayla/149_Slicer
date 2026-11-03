@@ -54,8 +54,6 @@
     "FillAngle": 45.0,
     "FillAngleStep": 90.0,
     "FillAngles": "",
-    "ImportFile": "",
-    "ImportScale": 1.0,
     "EdgeCalibrationEnabled": false,
     "EdgeBulgeIn": 1.5,
     "EdgeDipOut": 0.5,

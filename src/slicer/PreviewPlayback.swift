@@ -6,7 +6,6 @@ final class PathTimeline: ObservableObject {
     @Published var layer = 1
     @Published var progress = 1.0
     @Published var playing = false
-    @Published var showNozzle = true
     private(set) var data: PreviewResult?
     private(set) var layers: [PreviewResult.Layer] = []
     private var cumulative: [[Double]] = []
@@ -45,7 +44,7 @@ final class PathTimeline: ObservableObject {
         for j in 0..<3 { point.append(s[j] + (s[j + 3] - s[j]) * f) }
         return (index + 1, f, point)
     }
-    func tick() {
+    func tick(elapsed: Double) {
         guard playing, !layers.isEmpty else { return }
         if progress >= 1 {
             if layer >= layers.count {
@@ -55,7 +54,7 @@ final class PathTimeline: ObservableObject {
             layer += 1
             progress = 0
         } else {
-            progress = min(1, progress + 0.01)
+            progress = min(1, progress + elapsed * 0.1)
         }
     }
     func togglePlayback() {
@@ -66,58 +65,51 @@ final class PathTimeline: ObservableObject {
         playing.toggle()
     }
 }
-struct PlaybackControls: View {
-
+struct LayerOverlay: View {
+    @ObservedObject var timeline: PathTimeline
+    var body: some View {
+        VStack(spacing: 8) {
+            Text("\(timeline.layer)").monospacedDigit().font(.caption)
+            GeometryReader { proxy in
+                GlassSlider(value: Binding(get: { Double(timeline.layer) }, set: {
+                    timeline.playing = false; timeline.layer = Int($0.rounded())
+                }), range: 1...Double(max(2, timeline.layers.count)), step: 1, label: "观察层")
+                .frame(width: proxy.size.height, height: 24)
+                .rotationEffect(.degrees(-90))
+                .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+            }
+            Text("\(timeline.layers.count)").font(.caption2).foregroundStyle(.secondary)
+        }.padding(8).frame(width: 38).frame(maxHeight: 260)
+            .background(.regularMaterial, in: Capsule()).disabled(timeline.layers.count < 2)
+    }
+}
+struct PlaybackOverlay: View {
     @ObservedObject var timeline: PathTimeline
     let enabled: Bool
+    let mass: Double, minutes: Double
     var body: some View {
-        VStack(spacing: 7) {
-            HStack {
-                uiText(LF("层 %@ / %@", String(timeline.layer), String(max(1, timeline.layers.count)))).monospacedDigit()
-                    .frame(width: 112, alignment: .leading)
-                GlassSlider(
-                    value: Binding(
-                        get: { Double(timeline.layer) },
-                        set: {
-                            timeline.playing = false
-                            timeline.layer = Int($0.rounded())
-                        }), range: 1...Double(max(2, timeline.layers.count)), step: 1, label: "观察层"
-                ).frame(height: 24).disabled(timeline.layers.count < 2).accessibilityLabel(L("观察层"))
+        HStack(spacing: 10) {
+            ViewportIconButton(title: timeline.playing ? "暂停" : "演示", symbol: timeline.playing ? "pause.fill" : "play.fill") {
+                timeline.togglePlayback()
             }
-            HStack {
-                uiText(String(format: L("层内 %.0f%%"), timeline.progress * 100)).monospacedDigit().frame(
-                    width: 112, alignment: .leading)
-                GlassSlider(
-                    value: Binding(
-                        get: { timeline.progress },
-                        set: {
-                            timeline.playing = false
-                            timeline.progress = $0
-                        }), range: 0...1, label: "层内路径进度"
-                ).frame(height: 24).accessibilityLabel(L("层内路径进度"))
-            }
-            HStack {
-                Button {
-                    timeline.togglePlayback()
-                } label: {
-                    Label(L(timeline.playing ? "暂停" : "演示"), systemImage: timeline.playing ? "pause.fill" : "play.fill")
-                }.disabled(!enabled)
-                Toggle(L("喷嘴"), isOn: $timeline.showNozzle).fixedSize()
-                if let p = timeline.cursor.point {
-                    uiText(String(format: "X %.1f  Y %.1f  Z %.2f", p[0], p[1], p[2])).interfaceFont(.caption)
-                        .monospacedDigit().foregroundColor(.secondary)
+            GlassSlider(value: Binding(get: { timeline.progress }, set: { timeline.playing = false; timeline.progress = $0 }),
+                        range: 0...1, label: "层内路径进度").frame(height: 24)
+            Text(String(format: "%.1f g · %.0f min", mass, ceil(minutes))).font(.caption).monospacedDigit().fixedSize()
+        }.padding(6).frame(maxWidth: 560).background(.regularMaterial, in: Capsule()).disabled(!enabled)
+            .task(id: enabled && timeline.playing) {
+                guard enabled && timeline.playing else { return }
+                let clock = ContinuousClock()
+                var deadline = clock.now
+                var previous = ProcessInfo.processInfo.systemUptime
+                while !Task.isCancelled && timeline.playing {
+                    deadline += .nanoseconds(16_666_667)
+                    do { try await clock.sleep(until: deadline, tolerance: .microseconds(250)) } catch { return }
+                    let now = ProcessInfo.processInfo.systemUptime
+                    timeline.tick(elapsed: now - previous)
+                    previous = now
+                    if deadline < clock.now - .milliseconds(100) { deadline = clock.now }
                 }
-                Spacer()
-                uiText("每层约 10 秒").interfaceFont(.caption).foregroundColor(.secondary)
-            }
-        }.task(id: enabled && timeline.playing) {
-            guard enabled, timeline.playing else { return }
-            while !Task.isCancelled, timeline.playing {
-                do { try await Task.sleep(nanoseconds: 100_000_000) } catch { return }
-                guard !Task.isCancelled else { return }
-                timeline.tick()
-            }
-        }.onChange(of: enabled) { value in if !value { timeline.playing = false } }
+            }.onChange(of: enabled) { if !$0 { timeline.playing = false } }
             .onDisappear { timeline.playing = false }
     }
 }
