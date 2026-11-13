@@ -86,7 +86,7 @@ extension SliceGeometry {
             wall: wall, laps: laps, turns: turns, pitch: pitch, maxShift: maxShift, maxSegment: maxSegment)
     }
     static func readProfile(_ resources: URL, _ name: String) throws -> [String: Any] {
-        let url = resources.appendingPathComponent(name + ".json")
+        let url = resources.appendingPathComponent(name)
         guard let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any] else {
             throw SliceFailure("Invalid profile: " + name)
         }

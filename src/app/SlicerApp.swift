@@ -16,7 +16,7 @@ import UniformTypeIdentifiers
             UserDefaults.standard.removeObject(forKey: "AppleHighlightColor")
             NSApplication.shared.appearance = nil
             DispatchQueue.main.async {
-                if let url = Bundle.main.url(forResource: "149", withExtension: "icns") {
+                if let url = Bundle.main.url(forResource: BundledResource.appIcon, withExtension: nil) {
                     NSApp.applicationIconImage = NSImage(contentsOf: url)
                 }
             }

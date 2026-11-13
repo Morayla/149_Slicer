@@ -67,7 +67,6 @@ resources/           App metadata, translations, and runtime data
 scripts/             Shell entry points for builds
 tools/               Swift build utilities
 docs/screenshots/    Interface examples used in this guide
-build/               Generated intermediate files (not tracked)
 dist/                Local application builds (not tracked)
 ```
 
@@ -84,5 +83,5 @@ Both 149 repositories use the same layout and naming rules:
 - Apple-defined names such as `Info.plist` and `en.lproj/Localizable.strings` retain their standard spelling.
 - `src/app/` contains application-specific code; `src/shared/` contains the shared components each repository needs to build independently.
 - `assets/` holds source artwork and model assets; `resources/` holds app metadata, translations, and runtime data.
-- Generated intermediates belong in `build/`; distributable applications belong in `dist/`. Neither directory is committed.
+- Build intermediates are written to a temporary directory and removed when the build finishes; distributable applications belong in `dist/`, which is not committed.
 - App-specific subdirectories are added only when needed; no empty placeholder directories are required.

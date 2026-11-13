@@ -15,7 +15,8 @@ enum ShapeParameterRules {
         let parameters: [String: ShapeParameterRule]
     }
     static let catalog: Catalog = {
-        let url = Bundle.main.url(forResource: "shape-modules", withExtension: "json", subdirectory: "definitions")!
+        let url = Bundle.main.url(
+            forResource: BundledResource.shapeModules, withExtension: nil, subdirectory: BundledResource.definitions)!
         return try! JSONDecoder().decode(Catalog.self, from: Data(contentsOf: url))
     }()
     static func rule(_ key: String) -> ShapeParameterRule? { catalog.parameters[key] }

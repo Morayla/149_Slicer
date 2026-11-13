@@ -254,11 +254,11 @@ final class Workbench: ObservableObject {
         self.preferences = preferences
         backgroundWhite = preferences.bool(forKey: "149.preview.background.white")
         do {
-            let data = try Data(contentsOf: resource.appendingPathComponent("definitions/defaults.json"))
+            let data = try Data(contentsOf: BundledResource.definition(BundledResource.defaults, in: resource))
             defaults = try JSONSerialization.jsonObject(with: data) as! [String: Any]
             materialCatalog = try JSONDecoder().decode(
                 [PelletMaterial].self,
-                from: Data(contentsOf: resource.appendingPathComponent("definitions/pellet-materials.json")))
+                from: Data(contentsOf: BundledResource.definition(BundledResource.pelletMaterials, in: resource)))
             engine = try NativeSliceEngine(resources: resource)
             try applyProject(defaults)
             if let name = preferences.string(forKey: "149.lastPrinter"),

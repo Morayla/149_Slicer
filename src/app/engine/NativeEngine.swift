@@ -42,11 +42,12 @@ final class NativeSliceEngine {
     private var reference: WardrobeReference?, lengthsCache = [Data: [Double]](), lengthsOrder = [Data]()
     init(resources: URL) throws {
         self.resources = resources
-        shapes = resources.appendingPathComponent("definitions")
-        defaults = try NativeBambu.readObject(shapes.appendingPathComponent("defaults.json"))
+        shapes = resources.appendingPathComponent(BundledResource.definitions)
+        defaults = try NativeBambu.readObject(shapes.appendingPathComponent(BundledResource.defaults))
         let catalog =
             try JSONSerialization.jsonObject(
-                with: Data(contentsOf: shapes.appendingPathComponent("pellet-materials.json"))) as! [[String: Any]]
+                with: Data(contentsOf: shapes.appendingPathComponent(BundledResource.pelletMaterials)))
+            as! [[String: Any]]
         materials = Dictionary(uniqueKeysWithValues: catalog.map { ($0["id"] as! String, $0) })
     }
     private func configured(_ raw: [String: Any], forPreview: Bool = false) throws -> (

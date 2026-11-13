@@ -9,9 +9,9 @@ final class FernSliceSections {
             let sections: [[[Double]]]
             let subdivisions: [Int]
         }
-        let name = variant == "E" ? "fern1060-e-profile" : "fern1060-profile"
+        let name = variant == "E" ? BundledResource.fern1060EProfile : BundledResource.fern1060Profile
         let data = try JSONDecoder().decode(
-            Profile.self, from: Data(contentsOf: resources.appendingPathComponent(name + ".json")))
+            Profile.self, from: Data(contentsOf: resources.appendingPathComponent(name)))
         self.depth = depth
         heights = data.depths
         sections = data.sections.map { $0.map { SlicePoint($0[0], $0[1], 0) } }
