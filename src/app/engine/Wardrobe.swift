@@ -29,6 +29,12 @@ extension SliceGeometry {
         let amount =
             measured ? offsets.max()! : (p.flag("WardEFEnabled") ? (p.values["WardEF"] == nil ? 0.2 : p["WardEF"]) : 0)
         guard amount.isFinite, amount >= 0 else { throw SliceFailure("挂衣体 EF 内缩量必须为非负有限数值。") }
+        guard 2 * amount < p["WardLaneGap"] else {
+            throw SliceFailure(
+                String(
+                    format: "挂衣体 EF 最大内缩量 %.2f mm 须小于墙间净距的一半（当前 %.2f mm）；请减小内缩量或增大墙间净距。", amount,
+                    p["WardLaneGap"] / 2))
+        }
         var efParameters = p
         efParameters.set(["EF": amount, "EFLayers": 1, "EFTable": "", "DoubleLaneGap": p["WardLaneGap"]])
         let ef = try ScrollCompensation(sec.loop(first, false), &efParameters, 1)

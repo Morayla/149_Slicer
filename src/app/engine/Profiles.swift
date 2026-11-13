@@ -173,8 +173,11 @@ extension SliceGeometry {
         else { throw SliceFailure("底部类型或填充方式无效。") }
         for key in ["B", "N", "EFLayers", "HasBottom", "InnerOpen", "InnerEntry"]
         where p[key].rounded(.towardZero) != p[key] { throw SliceFailure(key + " 必须为整数。") }
-        for key in ["W", "WB", "H", "H0", "BH", "CH", "Dout", "Din", "Tolerance", "BlendAngle"] where p[key] <= 0 {
+        for key in ["W", "WB", "H", "H0", "BH", "CH", "Dout", "Tolerance", "BlendAngle"] where p[key] <= 0 {
             throw SliceFailure(key + " 必须大于 0。")
+        }
+        if p.flag("HasBottom") && p.text("BottomKind", fallback: "Annular") == "Annular" && p["Din"] <= 0 {
+            throw SliceFailure("Din 必须大于 0。")
         }
         guard (1...200).contains(p["EFLayers"]) else { throw SliceFailure("EF 补偿圈数必须在 1–200 之间。") }
         guard p["EF"] >= 0 else { throw SliceFailure("EF 补偿量不能小于 0。") }

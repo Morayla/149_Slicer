@@ -41,7 +41,7 @@ extension SliceGeometry {
         let fractions = pathFractions(path)
         let turns = max(1, Int(ceil((depth - first) / nominal - 1e-9)))
         let pitch = (depth - first) / Double(turns)
-        guard (path.count - 1) * (turns + 2) <= 220_000 else { throw SliceFailure("墙角螺旋路径超过 22 万段，请降低模块高度或增大层高。") }
+        guard (path.count - 1) * (turns + 2) <= 220_000 else { throw SliceFailure("蛋形海螺双卷路径超过 22 万段，请减小整体高度或增大层高。") }
         var lines = helicalHeader(
             p, kind: "EGG_SCROLL", pitch: pitch, start: path[0],
             metadata: ["; EGG_SCROLL_VASE=1", "; EGG_SCROLL_FRONT_HEIGHT=" + fmt(height)])

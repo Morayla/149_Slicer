@@ -139,9 +139,8 @@ struct PlacementToolbar: View {
 }
 
 enum PlacementRotation {
-    static func apply(_ angle: Double, to prepared: NativePreparedModel, offset: SIMD2<Double> = .zero) throws -> NativePreparedModel {
-        guard angle != 0 || offset != .zero else { return prepared }
-        var shape = prepared.shape
+    static func apply(_ angle: Double, to shape: SliceShape, offset: SIMD2<Double>) throws -> SliceShape {
+        var shape = shape
         let records = try SliceGcode.records(shape.gcode).0
         var low = SIMD2<Double>(repeating: .infinity), high = SIMD2<Double>(repeating: -.infinity)
         for r in records where r.deposits {
@@ -176,16 +175,13 @@ enum PlacementRotation {
         }
         shape.points = shape.points.map(rotate); shape.wall = shape.wall.map(rotate)
         shape.bottoms = shape.bottoms.map { $0.map(rotate) }
-        return NativePreparedModel(key: prepared.key, shape: shape)
+        return shape
     }
     static func generate(_ raw: [String: Any], engine: NativeSliceEngine, prepared: NativePreparedModel?) throws -> NativeSliceResult {
         let placement = raw["placement"] as? [String: Double] ?? [:]
         let angle = placement["rotation"] ?? 0
         let offset = SIMD2(placement["x"] ?? 0, placement["y"] ?? 0)
         guard angle != 0 || offset != .zero else { return try engine.generate(raw, prepared: prepared) }
-        let original = try prepared ?? engine.prepareModel(raw)
-        let result = try engine.generate(raw, prepared: apply(angle, to: original, offset: offset))
-        return NativeSliceResult(gcode: result.gcode, project: result.project, preview: result.preview,
-            metadata: result.metadata, bambu: result.bambu, model: original.shape, modelKey: original.key)
+        return try engine.generate(raw, prepared: prepared) { try apply(angle, to: $0, offset: offset) }
     }
 }

@@ -129,12 +129,16 @@ final class NativeSliceEngine {
             !project.process.flag("WaveEnabled"), !project.process.flag("MeshEnabled")
         {
             shape.values["N"] = shape["N"] > 0 ? min(shape["N"], Double(samplingLimit)) : Double(samplingLimit)
+            shape.values["_ReducedSampling"] = true
         }
         let key = try geometryKey(project, shape)
         let prepared = NativePreparedModel(key: key, shape: try buildShape(shape, project.process))
         return prepared
     }
-    func generate(_ raw: [String: Any], prepared: NativePreparedModel? = nil) throws -> NativeSliceResult {
+    func generate(
+        _ raw: [String: Any], prepared: NativePreparedModel? = nil,
+        placing place: ((SliceShape) throws -> SliceShape)? = nil
+    ) throws -> NativeSliceResult {
         lock.lock()
         defer { lock.unlock() }
         let started = Date()
@@ -142,8 +146,8 @@ final class NativeSliceEngine {
         let mode = shape.text("SourceMode")
         let selected = project.machine.text("PrinterModel")
         let key = try geometryKey(project, shape)
-        var model =
-            try prepared?.key == key ? prepared!.shape : buildShape(shape, project.process)
+        let built = try prepared?.key == key ? prepared!.shape : buildShape(shape, project.process)
+        var model = try place?(built) ?? built
         let mesh = model.details["mesh"] as? [String: Any]
         let wave = model.details["wave_fit"] as? [String: Any]
         if let fitted = mesh?["effective"] { project.process.values["MeshCount"] = fitted }

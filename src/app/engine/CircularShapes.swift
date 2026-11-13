@@ -231,9 +231,6 @@ extension SliceGeometry {
             let result = sampled(contour, n, seam: ref ?? bottoms.last?.last, angle: angle)
             cache[key] = result
             sectionCount += 1
-            if sectionCount > 2500 {
-                throw SliceFailure("Too many section refinements; simplify surface or lower accuracy")
-            }
             return result
         }
         var times = [0.0]
@@ -247,6 +244,7 @@ extension SliceGeometry {
             tt = next
         }
         var j = 0
+        var refinements = 0
         while j < times.count - 1 {
             let a = times[j]
             let b = times[j + 1]
@@ -257,6 +255,10 @@ extension SliceGeometry {
                 if b - a < 1 / 256.0 {
                     throw SliceFailure(
                         String(format: "Abrupt section / seam change around Z=%.3f", base + p["H"] * mid))
+                }
+                refinements += 1
+                if refinements > 2500 {
+                    throw SliceFailure("Too many section refinements; simplify surface or lower accuracy")
                 }
                 times.insert(mid, at: j + 1)
                 sections.insert(actual, at: j + 1)
@@ -331,7 +333,7 @@ extension SliceGeometry {
         guard allPoints.allSatisfy({ $0.x.isFinite && $0.y.isFinite && $0.z.isFinite }) else {
             throw SliceFailure("Nonfinite path")
         }
-        for path in [ring, wall] where path.count > 1 {
+        for path in [ring, wall] where path.count > 1 && !p.flag("_ReducedSampling") {
             if (1..<path.count).contains(where: {
                 xyLength(path[$0 - 1], path[$0]) > max(p["W"], p["WB"], filament ? 3.01 : 0)
             }) {
